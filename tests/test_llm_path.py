@@ -1,0 +1,53 @@
+"""Exercises the real Agent Framework path of the Narrator (Agent.run with structured output)
+using a local fake chat client, so the LLM wiring is tested without a model endpoint."""
+import asyncio
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from agent_framework import BaseChatClient, ChatResponse, Message
+
+from agents.narrator import LLMWriter
+from agents.templates import template_sentences
+from agents.workflow import narrate
+from analysis.pipeline import analyze
+from gen.episodes import make_episode, observe
+
+
+class FakeModel(BaseChatClient):
+    """Answers like a model asked for NarrationModel JSON. First answer invents a number."""
+
+    def __init__(self, pack):
+        super().__init__()
+        self.pack = pack
+        self.calls = 0
+        self.seen_options = []
+
+    async def _inner_get_response(self, *, messages, stream, options, **kwargs):
+        self.calls += 1
+        self.seen_options.append(options)
+        sents = template_sentences(self.pack)
+        if self.calls == 1:
+            sents = [dict(s) for s in sents]
+            sents[0]["text"] += " It was 77.7 m out."
+        text = json.dumps({"sentences": sents})
+        return ChatResponse(messages=[Message(role="assistant", contents=[text])], response_id=f"fake-{self.calls}")
+
+
+def test_llm_writer_through_agent_framework():
+    ep = make_episode("decoy_run", 10001)
+    pack = analyze(observe(ep, 0.3, seed=1)).moments[-1]
+    model = FakeModel(pack)
+    n = asyncio.run(narrate(pack, LLMWriter(model)))
+    assert model.calls == 2, model.calls                     # rejected once, accepted on retry
+    assert n.verified and n.source == "llm" and n.attempts == 2
+    assert "77.7" in " ".join(n.history[0]["problems"])
+    # the second prompt carried the verifier's feedback
+    assert any("response_format" in (o or {}) for o in model.seen_options)
+
+
+if __name__ == "__main__":
+    test_llm_writer_through_agent_framework()
+    print("ok")

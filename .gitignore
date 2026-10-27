@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.env
+data/
+*.log
+eval/results/genesis_rows.json

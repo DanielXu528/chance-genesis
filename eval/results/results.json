@@ -1,0 +1,949 @@
+{
+ "protocol": {
+  "test_seed0": 10000,
+  "episodes": 280,
+  "per_kind": 40,
+  "skipped_seeds": 0,
+  "main_noise_m": 0.3,
+  "noise_levels_m": [
+   0.0,
+   0.3,
+   0.6,
+   1.0
+  ]
+ },
+ "by_noise": {
+  "0.0": {
+   "marking": {
+    "raw": {
+     "frame_accuracy": 0.8947787212506326,
+     "man_marking_recall": 0.9168706352841495,
+     "zone_recall": 0.8565406594503493,
+     "changes_per_defender_min": 4.683077366600273,
+     "switches_found_within_4s": 0.9285714285714286,
+     "switch_latency_median_s": 1.42,
+     "switch_latency_p90_s": 1.8719999999999999,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "hysteresis": {
+     "frame_accuracy": 0.8760909295394478,
+     "man_marking_recall": 0.9126352597508459,
+     "zone_recall": 0.8128377249980324,
+     "changes_per_defender_min": 3.7395822413250865,
+     "switches_found_within_4s": 0.9285714285714286,
+     "switch_latency_median_s": 1.6,
+     "switch_latency_p90_s": 2.032,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "viterbi": {
+     "frame_accuracy": 0.8865686329640668,
+     "man_marking_recall": 0.9193304579950338,
+     "zone_recall": 0.8298624241528442,
+     "changes_per_defender_min": 4.153344166055142,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.36,
+     "switch_latency_p90_s": 1.8640000000000003,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "truth_changes_per_defender_min": 3.3159922423734143
+   },
+   "genesis": {
+    "n": 280,
+    "accuracy": 0.9,
+    "positives_cause_and_players_correct": 0.8,
+    "positives_cause_correct": 0.8083333333333333,
+    "negatives_false_positive_rate": 0.03125,
+    "per_cause": {
+     "decoy_run": {
+      "precision": 1.0,
+      "recall": 0.625,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 0.6799999999999997
+     },
+     "lost_marker": {
+      "precision": 0.7804878048780488,
+      "recall": 0.8,
+      "players_correct_given_cause": 0.96875,
+      "t_start_err_median_s": 0.5400000000000009
+     },
+     "press_turnover": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 1.8999999999999977
+     }
+    },
+    "confusion": {
+     "decoy_run": {
+      "decoy_run": 25,
+      "lost_marker": 4,
+      "press_turnover": 0,
+      "none": 11
+     },
+     "lost_marker": {
+      "decoy_run": 0,
+      "lost_marker": 32,
+      "press_turnover": 0,
+      "none": 8
+     },
+     "press_turnover": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 40,
+      "none": 0
+     },
+     "neg_nofollow": {
+      "decoy_run": 0,
+      "lost_marker": 3,
+      "press_turnover": 0,
+      "none": 37
+     },
+     "neg_outpaced": {
+      "decoy_run": 0,
+      "lost_marker": 2,
+      "press_turnover": 0,
+      "none": 38
+     },
+     "neg_long": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     },
+     "neg_unforced": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     }
+    },
+    "t_start_err_median_s_all": 0.7999999999999972
+   }
+  },
+  "0.3": {
+   "marking": {
+    "raw": {
+     "frame_accuracy": 0.8944153123769892,
+     "man_marking_recall": 0.9165179645798838,
+     "zone_recall": 0.8561586642838358,
+     "changes_per_defender_min": 6.199549218995702,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.44,
+     "switch_latency_p90_s": 1.8320000000000003,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "hysteresis": {
+     "frame_accuracy": 0.875889191924872,
+     "man_marking_recall": 0.9121561599261832,
+     "zone_recall": 0.813116063184688,
+     "changes_per_defender_min": 3.8958486214487893,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.6,
+     "switch_latency_p90_s": 2.032,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "viterbi": {
+     "frame_accuracy": 0.8863957150087162,
+     "man_marking_recall": 0.9192095740114962,
+     "zone_recall": 0.8295994425557972,
+     "changes_per_defender_min": 4.2142782262291645,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.4,
+     "switch_latency_p90_s": 1.872,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "truth_changes_per_defender_min": 3.3159922423734143
+   },
+   "genesis": {
+    "n": 280,
+    "accuracy": 0.9035714285714286,
+    "positives_cause_and_players_correct": 0.8083333333333333,
+    "positives_cause_correct": 0.8166666666666667,
+    "negatives_false_positive_rate": 0.03125,
+    "per_cause": {
+     "decoy_run": {
+      "precision": 1.0,
+      "recall": 0.65,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 0.6799999999999997
+     },
+     "lost_marker": {
+      "precision": 0.7804878048780488,
+      "recall": 0.8,
+      "players_correct_given_cause": 0.96875,
+      "t_start_err_median_s": 0.5
+     },
+     "press_turnover": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 1.8999999999999977
+     }
+    },
+    "confusion": {
+     "decoy_run": {
+      "decoy_run": 26,
+      "lost_marker": 4,
+      "press_turnover": 0,
+      "none": 10
+     },
+     "lost_marker": {
+      "decoy_run": 0,
+      "lost_marker": 32,
+      "press_turnover": 0,
+      "none": 8
+     },
+     "press_turnover": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 40,
+      "none": 0
+     },
+     "neg_nofollow": {
+      "decoy_run": 0,
+      "lost_marker": 3,
+      "press_turnover": 0,
+      "none": 37
+     },
+     "neg_outpaced": {
+      "decoy_run": 0,
+      "lost_marker": 2,
+      "press_turnover": 0,
+      "none": 38
+     },
+     "neg_long": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     },
+     "neg_unforced": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     }
+    },
+    "t_start_err_median_s_all": 0.7799999999999985
+   }
+  },
+  "0.6": {
+   "marking": {
+    "raw": {
+     "frame_accuracy": 0.8938825001405837,
+     "man_marking_recall": 0.9158092960892368,
+     "zone_recall": 0.8559302350134083,
+     "changes_per_defender_min": 8.936667889715903,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.44,
+     "switch_latency_p90_s": 1.88,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "hysteresis": {
+     "frame_accuracy": 0.8770504133160884,
+     "man_marking_recall": 0.9114397282439328,
+     "zone_recall": 0.8175272435497525,
+     "changes_per_defender_min": 4.261452982492924,
+     "switches_found_within_4s": 0.9285714285714286,
+     "switch_latency_median_s": 1.6,
+     "switch_latency_p90_s": 2.112,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "viterbi": {
+     "frame_accuracy": 0.8863528369791374,
+     "man_marking_recall": 0.9189123546758258,
+     "zone_recall": 0.8299967943119192,
+     "changes_per_defender_min": 4.3951147919069085,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.4,
+     "switch_latency_p90_s": 1.88,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "truth_changes_per_defender_min": 3.3159922423734143
+   },
+   "genesis": {
+    "n": 280,
+    "accuracy": 0.9035714285714286,
+    "positives_cause_and_players_correct": 0.8083333333333333,
+    "positives_cause_correct": 0.8166666666666667,
+    "negatives_false_positive_rate": 0.03125,
+    "per_cause": {
+     "decoy_run": {
+      "precision": 0.9629629629629629,
+      "recall": 0.65,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 0.6200000000000001
+     },
+     "lost_marker": {
+      "precision": 0.8421052631578947,
+      "recall": 0.8,
+      "players_correct_given_cause": 0.96875,
+      "t_start_err_median_s": 0.5
+     },
+     "press_turnover": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 1.8200000000000003
+     }
+    },
+    "confusion": {
+     "decoy_run": {
+      "decoy_run": 26,
+      "lost_marker": 2,
+      "press_turnover": 0,
+      "none": 12
+     },
+     "lost_marker": {
+      "decoy_run": 0,
+      "lost_marker": 32,
+      "press_turnover": 0,
+      "none": 8
+     },
+     "press_turnover": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 40,
+      "none": 0
+     },
+     "neg_nofollow": {
+      "decoy_run": 1,
+      "lost_marker": 3,
+      "press_turnover": 0,
+      "none": 36
+     },
+     "neg_outpaced": {
+      "decoy_run": 0,
+      "lost_marker": 1,
+      "press_turnover": 0,
+      "none": 39
+     },
+     "neg_long": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     },
+     "neg_unforced": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     }
+    },
+    "t_start_err_median_s_all": 0.7399999999999993
+   }
+  },
+  "1.0": {
+   "marking": {
+    "raw": {
+     "frame_accuracy": 0.8918855086318394,
+     "man_marking_recall": 0.9138962238727014,
+     "zone_recall": 0.8537879907630114,
+     "changes_per_defender_min": 14.373558549114163,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.44,
+     "switch_latency_p90_s": 1.8320000000000003,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "hysteresis": {
+     "frame_accuracy": 0.8779845920260924,
+     "man_marking_recall": 0.9104782015124915,
+     "zone_recall": 0.8217426273973076,
+     "changes_per_defender_min": 4.858999895167209,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.6,
+     "switch_latency_p90_s": 2.0640000000000005,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "viterbi": {
+     "frame_accuracy": 0.8858572794241691,
+     "man_marking_recall": 0.9185286312051468,
+     "zone_recall": 0.8293076673532342,
+     "changes_per_defender_min": 4.8570342803228845,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.44,
+     "switch_latency_p90_s": 1.9040000000000004,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "truth_changes_per_defender_min": 3.3159922423734143
+   },
+   "genesis": {
+    "n": 280,
+    "accuracy": 0.9107142857142857,
+    "positives_cause_and_players_correct": 0.8333333333333334,
+    "positives_cause_correct": 0.8333333333333334,
+    "negatives_false_positive_rate": 0.03125,
+    "per_cause": {
+     "decoy_run": {
+      "precision": 1.0,
+      "recall": 0.75,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 0.7799999999999994
+     },
+     "lost_marker": {
+      "precision": 0.8108108108108109,
+      "recall": 0.75,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 0.5200000000000014
+     },
+     "press_turnover": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 1.8799999999999972
+     }
+    },
+    "confusion": {
+     "decoy_run": {
+      "decoy_run": 30,
+      "lost_marker": 2,
+      "press_turnover": 0,
+      "none": 8
+     },
+     "lost_marker": {
+      "decoy_run": 0,
+      "lost_marker": 30,
+      "press_turnover": 0,
+      "none": 10
+     },
+     "press_turnover": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 40,
+      "none": 0
+     },
+     "neg_nofollow": {
+      "decoy_run": 0,
+      "lost_marker": 3,
+      "press_turnover": 0,
+      "none": 37
+     },
+     "neg_outpaced": {
+      "decoy_run": 0,
+      "lost_marker": 2,
+      "press_turnover": 0,
+      "none": 38
+     },
+     "neg_long": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     },
+     "neg_unforced": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     }
+    },
+    "t_start_err_median_s_all": 0.8399999999999999
+   }
+  }
+ },
+ "by_noise_correlated": {
+  "0.3": {
+   "marking": {
+    "raw": {
+     "frame_accuracy": 0.8932737727042681,
+     "man_marking_recall": 0.9153113427992516,
+     "zone_recall": 0.855129772780061,
+     "changes_per_defender_min": 5.381853443757207,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.4,
+     "switch_latency_p90_s": 1.8240000000000005,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "hysteresis": {
+     "frame_accuracy": 0.8760086880728786,
+     "man_marking_recall": 0.9116604246909418,
+     "zone_recall": 0.8143004401582496,
+     "changes_per_defender_min": 3.9685763706887514,
+     "switches_found_within_4s": 0.9285714285714286,
+     "switch_latency_median_s": 1.58,
+     "switch_latency_p90_s": 1.916,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "viterbi": {
+     "frame_accuracy": 0.8860323061350728,
+     "man_marking_recall": 0.9185230860682873,
+     "zone_recall": 0.8297952390733065,
+     "changes_per_defender_min": 4.363664954397736,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.4,
+     "switch_latency_p90_s": 1.7520000000000002,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "truth_changes_per_defender_min": 3.3159922423734143
+   },
+   "genesis": {
+    "n": 280,
+    "accuracy": 0.9071428571428571,
+    "positives_cause_and_players_correct": 0.8166666666666667,
+    "positives_cause_correct": 0.825,
+    "negatives_false_positive_rate": 0.03125,
+    "per_cause": {
+     "decoy_run": {
+      "precision": 1.0,
+      "recall": 0.7,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 0.6799999999999997
+     },
+     "lost_marker": {
+      "precision": 0.7948717948717948,
+      "recall": 0.775,
+      "players_correct_given_cause": 0.967741935483871,
+      "t_start_err_median_s": 0.5199999999999996
+     },
+     "press_turnover": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 1.9199999999999964
+     }
+    },
+    "confusion": {
+     "decoy_run": {
+      "decoy_run": 28,
+      "lost_marker": 3,
+      "press_turnover": 0,
+      "none": 9
+     },
+     "lost_marker": {
+      "decoy_run": 0,
+      "lost_marker": 31,
+      "press_turnover": 0,
+      "none": 9
+     },
+     "press_turnover": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 40,
+      "none": 0
+     },
+     "neg_nofollow": {
+      "decoy_run": 0,
+      "lost_marker": 3,
+      "press_turnover": 0,
+      "none": 37
+     },
+     "neg_outpaced": {
+      "decoy_run": 0,
+      "lost_marker": 2,
+      "press_turnover": 0,
+      "none": 38
+     },
+     "neg_long": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     },
+     "neg_unforced": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     }
+    },
+    "t_start_err_median_s_all": 0.7999999999999989
+   }
+  },
+  "0.6": {
+   "marking": {
+    "raw": {
+     "frame_accuracy": 0.8889648821908565,
+     "man_marking_recall": 0.9111857609757666,
+     "zone_recall": 0.8505036001604763,
+     "changes_per_defender_min": 7.559754691267428,
+     "switches_found_within_4s": 0.9285714285714286,
+     "switch_latency_median_s": 1.4,
+     "switch_latency_p90_s": 1.956,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "hysteresis": {
+     "frame_accuracy": 0.8713694258561547,
+     "man_marking_recall": 0.9095699080949017,
+     "zone_recall": 0.805249650157693,
+     "changes_per_defender_min": 4.5356562532760245,
+     "switches_found_within_4s": 0.9285714285714286,
+     "switch_latency_median_s": 1.62,
+     "switch_latency_p90_s": 2.116,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "viterbi": {
+     "frame_accuracy": 0.8834497835010966,
+     "man_marking_recall": 0.9163161215981972,
+     "zone_recall": 0.8265626769607005,
+     "changes_per_defender_min": 4.882587273299088,
+     "switches_found_within_4s": 0.9285714285714286,
+     "switch_latency_median_s": 1.4,
+     "switch_latency_p90_s": 1.956,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "truth_changes_per_defender_min": 3.3159922423734143
+   },
+   "genesis": {
+    "n": 280,
+    "accuracy": 0.8857142857142857,
+    "positives_cause_and_players_correct": 0.7916666666666666,
+    "positives_cause_correct": 0.7916666666666666,
+    "negatives_false_positive_rate": 0.04375,
+    "per_cause": {
+     "decoy_run": {
+      "precision": 1.0,
+      "recall": 0.65,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 0.6000000000000005
+     },
+     "lost_marker": {
+      "precision": 0.7560975609756098,
+      "recall": 0.775,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 0.5999999999999996
+     },
+     "press_turnover": {
+      "precision": 1.0,
+      "recall": 0.95,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 1.7799999999999985
+     }
+    },
+    "confusion": {
+     "decoy_run": {
+      "decoy_run": 26,
+      "lost_marker": 3,
+      "press_turnover": 0,
+      "none": 11
+     },
+     "lost_marker": {
+      "decoy_run": 0,
+      "lost_marker": 31,
+      "press_turnover": 0,
+      "none": 9
+     },
+     "press_turnover": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 38,
+      "none": 2
+     },
+     "neg_nofollow": {
+      "decoy_run": 0,
+      "lost_marker": 3,
+      "press_turnover": 0,
+      "none": 37
+     },
+     "neg_outpaced": {
+      "decoy_run": 0,
+      "lost_marker": 4,
+      "press_turnover": 0,
+      "none": 36
+     },
+     "neg_long": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     },
+     "neg_unforced": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     }
+    },
+    "t_start_err_median_s_all": 0.6799999999999997
+   }
+  },
+  "1.0": {
+   "marking": {
+    "raw": {
+     "frame_accuracy": 0.8788597255806107,
+     "man_marking_recall": 0.8986581877827327,
+     "zone_recall": 0.8445913131611732,
+     "changes_per_defender_min": 12.481654261452983,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.4,
+     "switch_latency_p90_s": 2.1440000000000006,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "hysteresis": {
+     "frame_accuracy": 0.8642383174942361,
+     "man_marking_recall": 0.90266288562268,
+     "zone_recall": 0.7977306799705921,
+     "changes_per_defender_min": 6.341073487786979,
+     "switches_found_within_4s": 0.9642857142857143,
+     "switch_latency_median_s": 1.56,
+     "switch_latency_p90_s": 2.2960000000000003,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "viterbi": {
+     "frame_accuracy": 0.8774166338638025,
+     "man_marking_recall": 0.9084985876536419,
+     "zone_recall": 0.8236180509032553,
+     "changes_per_defender_min": 6.76957752384946,
+     "switches_found_within_4s": 0.9464285714285714,
+     "switch_latency_median_s": 1.4,
+     "switch_latency_p90_s": 2.1440000000000006,
+     "n_frames": 1422640,
+     "n_switches": 56
+    },
+    "truth_changes_per_defender_min": 3.3159922423734143
+   },
+   "genesis": {
+    "n": 280,
+    "accuracy": 0.8071428571428572,
+    "positives_cause_and_players_correct": 0.6083333333333333,
+    "positives_cause_correct": 0.625,
+    "negatives_false_positive_rate": 0.05625,
+    "per_cause": {
+     "decoy_run": {
+      "precision": 0.9523809523809523,
+      "recall": 0.5,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 0.5199999999999996
+     },
+     "lost_marker": {
+      "precision": 0.7027027027027027,
+      "recall": 0.65,
+      "players_correct_given_cause": 0.9230769230769231,
+      "t_start_err_median_s": 0.5600000000000005
+     },
+     "press_turnover": {
+      "precision": 1.0,
+      "recall": 0.725,
+      "players_correct_given_cause": 1.0,
+      "t_start_err_median_s": 1.8399999999999999
+     }
+    },
+    "confusion": {
+     "decoy_run": {
+      "decoy_run": 20,
+      "lost_marker": 3,
+      "press_turnover": 0,
+      "none": 17
+     },
+     "lost_marker": {
+      "decoy_run": 0,
+      "lost_marker": 26,
+      "press_turnover": 0,
+      "none": 14
+     },
+     "press_turnover": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 29,
+      "none": 11
+     },
+     "neg_nofollow": {
+      "decoy_run": 1,
+      "lost_marker": 2,
+      "press_turnover": 0,
+      "none": 37
+     },
+     "neg_outpaced": {
+      "decoy_run": 0,
+      "lost_marker": 6,
+      "press_turnover": 0,
+      "none": 34
+     },
+     "neg_long": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     },
+     "neg_unforced": {
+      "decoy_run": 0,
+      "lost_marker": 0,
+      "press_turnover": 0,
+      "none": 40
+     }
+    },
+    "t_start_err_median_s_all": 0.7200000000000006
+   }
+  }
+ },
+ "full_match": {
+  "minutes": 90.0,
+  "frames": 135000,
+  "scripted_chances": 24,
+  "shots_total": 24,
+  "scripted_cause_correct": 0.9166666666666666,
+  "rows": [
+   {
+    "kind": "press_turnover",
+    "true": "press_turnover",
+    "pred": "press_turnover"
+   },
+   {
+    "kind": "neg_outpaced",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "neg_long",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "neg_long",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "lost_marker",
+    "true": "lost_marker",
+    "pred": "lost_marker"
+   },
+   {
+    "kind": "lost_marker",
+    "true": "lost_marker",
+    "pred": "lost_marker"
+   },
+   {
+    "kind": "neg_nofollow",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "neg_unforced",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "decoy_run",
+    "true": "decoy_run",
+    "pred": "none"
+   },
+   {
+    "kind": "decoy_run",
+    "true": "decoy_run",
+    "pred": "decoy_run"
+   },
+   {
+    "kind": "press_turnover",
+    "true": "press_turnover",
+    "pred": "press_turnover"
+   },
+   {
+    "kind": "lost_marker",
+    "true": "lost_marker",
+    "pred": "lost_marker"
+   },
+   {
+    "kind": "neg_outpaced",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "press_turnover",
+    "true": "press_turnover",
+    "pred": "press_turnover"
+   },
+   {
+    "kind": "lost_marker",
+    "true": "lost_marker",
+    "pred": "lost_marker"
+   },
+   {
+    "kind": "neg_outpaced",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "neg_nofollow",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "decoy_run",
+    "true": "decoy_run",
+    "pred": "decoy_run"
+   },
+   {
+    "kind": "press_turnover",
+    "true": "press_turnover",
+    "pred": "press_turnover"
+   },
+   {
+    "kind": "neg_unforced",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "neg_long",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "neg_unforced",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "neg_nofollow",
+    "true": "none",
+    "pred": "none"
+   },
+   {
+    "kind": "decoy_run",
+    "true": "decoy_run",
+    "pred": "none"
+   }
+  ],
+  "generate_s": 66.34255146980286,
+  "analysis_total_s": 11.39297342300415,
+  "x_realtime": 473.97635362657627,
+  "stage_s": {
+   "preprocess_s": 0.6288455740004792,
+   "marking_s": 10.64197108999997,
+   "genesis_s": 0.12207412899988412
+  },
+  "genesis_per_chance_ms_median": 2.7168379997419834,
+  "genesis_per_chance_ms_max": 8.762373000536172
+ },
+ "per_frame": {
+  "frames": 20000,
+  "p50_ms": 0.20709650016215164,
+  "p99_ms": 0.571152430156866,
+  "mean_ms": 0.23511188579682313,
+  "realtime_budget_ms": 40.0
+ },
+ "realism": {
+  "minutes": 90.0,
+  "distance_km_per90_mean": 10.507523187906017,
+  "distance_km_per90_range": [
+   9.180552563594548,
+   11.912148196985903
+  ],
+  "high_intensity_m_per90_mean": 1738.2380899315947,
+  "sprints_per90_mean": 33.1,
+  "team_width_m_mean": 52.39621164437321,
+  "team_length_m_mean": 40.42178457470512,
+  "max_speed_ms": 8.600109580309677
+ },
+ "wall_s": 256.7084345817566
+}

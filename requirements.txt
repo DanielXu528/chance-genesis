@@ -1,0 +1,10 @@
+numpy==2.5.3
+scipy==1.18.1
+fastapi==0.141.1
+uvicorn[standard]==0.54.0
+pydantic==2.13.5
+typing_extensions==4.16.0
+agent-framework-core==1.23.0
+agent-framework-openai==1.17.0
+agent-framework-foundry==1.15.0
+azure-identity==1.27.0
