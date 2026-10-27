@@ -3,4 +3,3 @@
 __pycache__
 data
 *.log
-eval/results/genesis_rows.json

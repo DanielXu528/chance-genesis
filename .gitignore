@@ -5,4 +5,3 @@ __pycache__/
 .env
 data/
 *.log
-eval/results/genesis_rows.json
