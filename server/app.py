@@ -249,6 +249,9 @@ async def live(ws: WebSocket):
                     asyncio.create_task(_push_narration(ws, m["moment_id"]))
             f += step
             await asyncio.sleep(max(0.0, step / FPS / speed - (time.perf_counter() - t0)))
+        await ws.send_text(json.dumps({"type": "end"}))
+        await asyncio.sleep(0.5)          # let pending narrations go out
+        await ws.close()
     except WebSocketDisconnect:
         return
 

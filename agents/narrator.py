@@ -1,4 +1,5 @@
-"""Narrator and Tactical Analyst agents (Microsoft Agent Framework).
+"""Narrator and Tactical Analyst agents (Microsoft Agent Framework): two agents with their own
+instructions, sharing one chat client and the same verify / retry / fallback workflow.
 
 The LLM only turns an evidence pack into words. It never sees tracking data and never
 decides causes; every sentence must cite the evidence fields it uses, and the Verifier
@@ -37,8 +38,22 @@ Rules
   For verdict_type "pulled_by_design" say the defender followed his assignment; for "switched_off" say the
   model shows him stopping tracking; for "forced_error" credit the press.
 - If cause is "none", say no tactical cause was found and describe the shot.
-- For a pack of type "period_summary", write a studio note about patterns across the listed chances.
 - Write in {language}. Keep player ids and clock times unchanged.
+"""
+
+ANALYST_INSTRUCTIONS = """You are the tactical analyst preparing a short studio note for the presenters at a break.
+You receive a period summary: how many chances each team created, by cause (decoy run, lost marker,
+pressing trap, none), the chances themselves, and defenders the model points to more than once.
+
+Rules
+- 3 or 4 sentences, at most 80 words. Lead with the most useful pattern for the presenters (for example,
+  one team creating its chances by pressing high, or one defender repeatedly pulled out by decoy runs).
+- Use only counts, clock times and player ids that appear in the summary. Do not compute rates or
+  percentages. Use team letters (A, B) and player ids exactly as written.
+- For every sentence, list in `cites` the JSON paths of the fields it uses (e.g. "by_team.A",
+  "repeat_defenders[0]", "moments[3].cause").
+- No blame language; say what the tracking model shows.
+- Write in {language}.
 """
 
 
@@ -92,19 +107,23 @@ class LLMWriter:
         self._agents: dict[str, object] = {}
         self._Agent = Agent
 
-    def _agent(self, language: str):
-        if language not in self._agents:
-            self._agents[language] = self._Agent(
-                self.client, NARRATOR_INSTRUCTIONS.replace("{language}", LANG_NAMES.get(language, "English")),
-                name=self.name)
-        return self._agents[language]
+    def _agent(self, role: str, language: str):
+        """Two distinct agents share the client: the replay Narrator and the Tactical Analyst."""
+        key = (role, language)
+        if key not in self._agents:
+            instructions = ANALYST_INSTRUCTIONS if role == "analyst" else NARRATOR_INSTRUCTIONS
+            self._agents[key] = self._Agent(
+                self.client, instructions.replace("{language}", LANG_NAMES.get(language, "English")),
+                name="TacticalAnalyst" if role == "analyst" else self.name)
+        return self._agents[key]
 
     async def __call__(self, pack: dict, feedback: list[str], language: str = "en") -> list[dict]:
-        prompt = "Evidence pack:\n" + json.dumps(pack, ensure_ascii=False)
+        role = "analyst" if pack.get("type") == "period_summary" else "narrator"
+        prompt = ("Period summary:\n" if role == "analyst" else "Evidence pack:\n") + json.dumps(pack, ensure_ascii=False)
         if feedback:
             prompt += ("\n\nYour previous draft was rejected by the verifier for these reasons. Fix every one:\n- "
                        + "\n- ".join(feedback))
-        resp = await self._agent(language).run(prompt, options={"response_format": NarrationModel, "temperature": 0.3})
+        resp = await self._agent(role, language).run(prompt, options={"response_format": NarrationModel, "temperature": 0.3})
         value = resp.value
         if value is None:
             value = NarrationModel.model_validate_json(resp.text)

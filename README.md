@@ -170,7 +170,8 @@ A `WorkflowBuilder` graph with three executors:
   key players must be named. A rejected draft goes back to the Narrator with the list of problems.
 - **Fallback** — after a second rejection (or a model outage) a template narration that always verifies.
 
-A **Tactical Analyst** uses the same workflow on a period summary ("studio note" for each half). The UI
+A separate **Tactical Analyst** agent (its own instructions, same client) writes a studio note for each
+half from a period summary, through the same verify / retry / fallback workflow. The UI
 shows how many facts were checked and whether a draft was rejected first. Narration can be requested in
 English, Spanish, French or Chinese; the verifier is language-independent (it checks numbers, times and ids).
 
@@ -209,9 +210,9 @@ per Premier League match and about 30 sprints per player
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-python -m server.prepare            # builds the 90-minute demo match (about 1 minute)
+python -m server.prepare            # builds the 90-minute demo match (1-2 minutes)
 uvicorn server.app:app --port 8000  # open http://localhost:8000
-python -m eval.run_eval             # full evaluation (about 8 minutes on one core)
+python -m eval.run_eval             # full evaluation (4-9 minutes on one core)
 pytest -q
 ```
 
@@ -226,7 +227,8 @@ export AZURE_OPENAI_DEPLOYMENT=gpt-4.1-mini
 export AZURE_OPENAI_API_KEY=<key>
 ```
 
-Deploy to Azure Container Apps: `./deploy/aca.sh` (see the script header for the two auth options).
+Deploy to Azure Container Apps: `./deploy/aca.sh` (see the script header: Foundry with managed identity,
+or Azure OpenAI with a key or managed identity).
 
 ## Microsoft technology used
 

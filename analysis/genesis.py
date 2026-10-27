@@ -215,7 +215,7 @@ class ChanceAnalyzer:
             pattern = None
             if watch_s >= p.watch_min_s:
                 pattern = "lost_marker"
-            elif ratio >= p.outpaced_ratio_min:
+            elif p.outpaced_ratio_min <= ratio < 0.95:
                 pattern = "outpaced"
                 f_on = f_close
             if pattern is None:
@@ -223,6 +223,8 @@ class ChanceAnalyzer:
             f_end = min(f_on + int(1.5 * FPS), f_r)
             v_d = float(tr.speed[f_on:f_end + 1, d].mean())
             v_a = float(tr.speed[f_on:f_end + 1, S].mean())
+            if pattern == "outpaced" and v_a < v_d + 0.5:
+                continue        # "outran" needs the attacker to actually be the faster one
             P_r = c["P_r"]
             sp_rec = space_at(P_r, tr.pos[f_r], tr.vel[f_r], X)
             # counterfactual: the marker keeps the offset he had to his man when the run began

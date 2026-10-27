@@ -183,7 +183,8 @@ function renderHeader(){
   $("score").innerHTML = `<span class="chip" style="background:${t.A.color}"></span>${t.A.name}<span class="num">${g.A}</span>–<span class="num">${g.B}</span>${t.B.name}<span class="chip" style="background:${t.B.color}"></span>`;
   $("backend").textContent = `Narration: ${S.info.backend}`;
   const tl = $("timeline"); tl.innerHTML = `<div class="axis"></div><div class="head" id="head" style="left:0"></div>`;
-  for(let mm=0; mm<=90; mm+=15){ const d=document.createElement("div"); d.className="tick"; d.style.left=`${mm/S.info.minutes*100}%`; d.textContent=`${mm}'`; tl.appendChild(d); }
+  const span = S.info.minutes, stepM = span > 30 ? 15 : (span > 10 ? 5 : 1);
+  for(let mm=0; mm<=span + 1e-6; mm+=stepM){ const d=document.createElement("div"); d.className="tick"; d.style.left=`${mm/S.info.minutes*100}%`; d.textContent=`${mm}'`; tl.appendChild(d); }
   S.info.moments.forEach(m => {
     const b = document.createElement("button");
     b.className = "mk" + (m.type==="goal" ? " goal":"");
