@@ -30,11 +30,11 @@ from common.pitch import FPS, ID_TO_IDX, L, PLAYER_IDS, fmt_clock, opp_goal, out
 class GenesisParams:
     lookback_s: float = 10.0
     # decoy run
-    protect_r: float = 4.0       # dragged defender was standing where the shooter later received
+    protect_r: float = 5.0       # dragged defender was standing where the shooter later received
     protect_rank: int = 2         # ... and among the k nearest defenders to it
     min_drag: float = 9.0         # metres he moved away from the reception point
-    follow_frac: float = 0.5      # share of the drag spent assigned to the runner
-    follow_max: float = 5.0       # median distance to the runner while being dragged
+    follow_frac: float = 0.3      # share of the drag spent assigned to the runner
+    follow_max: float = 8.0       # median distance to the runner while being dragged (he trails a sprinter)
     run_speed_min: float = 5.5    # the runner actually sprints
     run_len_min: float = 6.0      # ... over at least this distance
     drag_recent_s: float = 6.0    # the drag starts at most this long before the reception
@@ -42,10 +42,12 @@ class GenesisParams:
     sep_start_max: float = 4.0    # marker was this close at the start
     mark_window_s: int = 5        # ... and assigned to the attacker for most of the 5 s before
     mark_frac: float = 0.5
-    sep_end_min: float = 6.0      # gap at reception
+    sep_end_min: float = 5.0      # gap at reception
     watch_def_speed: float = 2.5  # marker below jogging pace ...
     watch_att_speed: float = 4.5  # ... while his man is sprinting
-    watch_min_s: float = 0.6      # for at least this long -> switched off
+    watch_min_s: float = 0.9      # for at least this long -> switched off
+    tight_m: float = 2.5          # tracking his man this closely ...
+    tight_min_s: float = 1.0      # ... for at least this long in the 3 s before the gap opened
     outpaced_ratio_min: float = 0.55  # marker covered >= this share of his man's distance
     # press
     press_window_s: float = 3.0
@@ -197,6 +199,12 @@ class ChanceAnalyzer:
             frac = float((look == S).mean())
             if frac < p.mark_frac:
                 continue
+            # a man-marking job before the gap opened: within 2.5 m of his man for long enough
+            a3 = max(w0 - 2 * FPS, f_close - 3 * FPS, 0)
+            tight_s = float((np.linalg.norm(tr.pos[a3:f_close + 1, d] - tr.pos[a3:f_close + 1, S], axis=1)
+                             <= p.tight_m).sum()) / FPS
+            if tight_s < p.tight_min_s:
+                continue
             d_min = float(ds[max(0, k - FPS):k + 1].min())
             f_min = w0 + max(0, k - FPS) + int(np.argmin(ds[max(0, k - FPS):k + 1]))
             # "watching": the marker below jogging pace while his man sprints
@@ -239,6 +247,7 @@ class ChanceAnalyzer:
                 "strength": (sep / p.sep_end_min) * min(watch_s / p.watch_min_s, 2.0) if pattern == "lost_marker" else 0.0,
                 "attacker": S, "defender": int(d), "f_min": f_min, "f_close": f_close, "f_on": f_on, "f_r": f_r,
                 "d_min": d_min, "d_rec": d_rec, "v_def": v_d, "v_att": v_a, "ratio": ratio, "watch_s": watch_s,
+                "tight_s": tight_s,
                 "space_rec": sp_rec, "space_cf": sp_cf,
                 "marker_conf": float(np.mean(self.conf[max(w0, f_close - FPS):f_close + 1, d])),
             })

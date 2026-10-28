@@ -31,7 +31,7 @@ STRIKERS = {"ST", "RST", "LST"}
 WIDE = {"RW", "LW", "RM", "LM"}
 MIDS = {"DM", "RCM", "LCM"}
 DEF_ROLES = {"RCB", "LCB", "RB", "LB"}
-SETTLE_MAX_S = 2.5
+SETTLE_MAX_S = 4.0
 GOAL_PROB = 0.15   # chance of a scripted chance ending in a goal (keeps scorelines plausible)
 FREE_M = 5.0        # a beneficiary must start with no defender this close (clean ground truth)
 
@@ -54,6 +54,19 @@ class Script:
         self.done = False
         self.players: dict = {}
         self.extra: dict = {}
+        self._saved: dict = {}
+
+    def tune(self, sim: Sim, i: int, **attrs):
+        """Temporarily change a player's per-player traits (restored when the script ends)."""
+        for k, v in attrs.items():
+            arr = getattr(sim, k)
+            self._saved.setdefault((k, i), arr[i].copy() if hasattr(arr[i], "copy") else arr[i])
+            arr[i] = v
+
+    def restore(self, sim: Sim):
+        for (k, i), v in self._saved.items():
+            getattr(sim, k)[i] = v
+        self._saved.clear()
 
     # helpers -------------------------------------------------------------
     def rel(self, xy):
@@ -79,12 +92,21 @@ class Script:
         if self.phase == "wait":
             if sim.frame >= self.start_frame and self.ready(sim):
                 sim.director_enabled = False
+                sim.runs_enabled = False            # no unscripted runs during a scripted chance
+                sim.run_until[:] = 0
                 if sim.director is not None:
                     sim.director.cancel_tackle(sim)
                 self.begin(sim)
                 self.settle_end = sim.frame + int(SETTLE_MAX_S * FPS)
                 self.phase = "settle"
             return
+        if self.t0 is not None and sim.frame - self.t0 > 15 * FPS:
+            raise ScriptAbort(f"{self.kind}: did not finish within 15 s")
+        if self.phase == "intercept" and sim.flight is None and not sim.loose and sim.possession != self.team:
+            raise ScriptAbort(f"{self.kind}: the interception did not happen")
+        if self.phase in ("running", "passed", "carry", "counter") and sim.possession != self.team \
+                and not (self.kind in ("press_turnover", "neg_unforced") and self.phase in ("pressing", "intercept")):
+            raise ScriptAbort(f"{self.kind}: the ball was lost before the chance")
         if self.phase == "settle":
             if self.settled(sim) or sim.frame >= self.settle_end:
                 if self.can_go(sim):
@@ -140,12 +162,14 @@ class Script:
             self.shot_frame = sim.frame
             self.phase = "shot"
             self._release_all(sim)
+            sim.runs_enabled = True
             self.done = True
 
     def _release_all(self, sim: Sim):
         for i in list(sim.ov.keys()):
             sim.clear_override(i)
         sim.locked.clear()
+        self.restore(sim)
 
     def _attackers(self, sim: Sim, roles, exclude=()):
         return [i for i in outfield(self.team) if sim.role[i] in roles and i not in exclude]
@@ -191,7 +215,13 @@ class DecoyRun(Script):
         sim.set_override(c, hold_ball(c))
 
     def settled(self, sim: Sim) -> bool:
-        return np.linalg.norm(sim.pos[self.Dm] - sim.pos[self.R]) < 4.0
+        steady = (np.linalg.norm(sim.pos[self.Dm] - sim.pos[self.R]) < 3.5
+                  and np.linalg.norm(sim.vel[self.Dm] - sim.vel[self.R]) < 1.5)
+        self._steady = getattr(self, "_steady", 0) + 1 if steady else 0
+        return self._steady >= FPS
+
+    def can_go(self, sim: Sim) -> bool:
+        return getattr(self, "_steady", 0) >= FPS
 
     def _cands(self, sim: Sim):
         D0 = sim.pos[self.Dm]
@@ -206,13 +236,17 @@ class DecoyRun(Script):
         D0 = sim.pos[Dm].copy()
         D0r = self.rel(D0)
         S = self._free_choice(sim, self._cands(sim), D0)
+        # a centre-back who reads the run tracks it closely (short reaction, tight goal-side gap)
+        self.tune(sim, Dm, delay_f=int(self.rng.uniform(0.10, 0.22) * FPS),
+                  goal_side=self.rng.uniform(0.9, 1.4), amax=max(float(sim.amax[Dm]), 4.8))
 
         Rr = self.rel(sim.pos[R])
         Sr = self.rel(sim.pos[S])
-        if self.rng.random() < 0.7:
+        side = -1.0 if Sr[1] > Rr[1] else 1.0       # run away from the beneficiary's side
+        wide_y = float(np.clip(Rr[1] + side * self.rng.uniform(13, 19), 3, W - 3))
+        if self.rng.random() < 0.7 and abs(wide_y - Rr[1]) >= 10.0:
             run_type = "wide"
-            side = -1.0 if Sr[1] > Rr[1] else 1.0   # run away from the beneficiary's side
-            tgt_r = np.array([Rr[0] + self.rng.uniform(-2, 4), 34 + side * self.rng.uniform(15, 22)])
+            tgt_r = np.array([Rr[0] + self.rng.uniform(-2, 4), wide_y])
         else:
             run_type = "deep"
             tgt_r = np.array([Rr[0] - self.rng.uniform(11, 15), Rr[1] + self.rng.uniform(-4, 4)])
@@ -244,7 +278,7 @@ class DecoyRun(Script):
                 if eta <= flight + 0.3 or sim.frame >= self.max_pass:
                     sim.clear_override(self.c)
                     sim.clear_override(self.S)
-                    sim.pass_to(self.S, point=self.s_tgt + sim.vel[self.S] * 0.3, speed=self.rng.uniform(14, 18))
+                    sim.pass_to(self.S, speed=self.rng.uniform(14, 18), lead=0.8, safe=True)
                     self.extra["t_pass"] = round(sim.frame * DT, 3)
                     self.phase = "passed"
             return
@@ -268,7 +302,13 @@ class LostMarker(Script):
         sim.set_override(c, hold_ball(c))
 
     def settled(self, sim: Sim) -> bool:
-        return np.linalg.norm(sim.pos[self.Dm] - sim.pos[self.R]) < 3.5
+        # a real man-marking job first: within 2.5 m of his man for 1.5 s
+        close = np.linalg.norm(sim.pos[self.Dm] - sim.pos[self.R]) < 2.5
+        self._tight = getattr(self, "_tight", 0) + 1 if close else 0
+        return self._tight >= int(1.5 * FPS)
+
+    def can_go(self, sim: Sim) -> bool:
+        return getattr(self, "_tight", 0) >= int(1.5 * FPS)   # otherwise the episode is redrawn
 
     def go(self, sim: Sim):
         T = self.team
@@ -312,7 +352,7 @@ class LostMarker(Script):
         if self.phase == "running":
             if sim.frame >= self.pass_frame and sim.carrier == self.c:
                 sim.clear_override(self.c)
-                sim.pass_to(self.R, speed=self.rng.uniform(15, 19), lead=2.0)
+                sim.pass_to(self.R, speed=self.rng.uniform(15, 19), lead=2.0, safe=True)
                 self.extra["t_pass"] = round(sim.frame * DT, 3)
                 self.phase = "passed"
             return
@@ -356,7 +396,9 @@ class NoFollow(Script):
         sim.unmarkable.add(S)
         Rr = self.rel(sim.pos[R])
         side = 1.0 if self.rng.random() < 0.5 else -1.0
-        tgt_r = np.array([Rr[0] + self.rng.uniform(-2, 4), 34 + side * self.rng.uniform(15, 22)])
+        if not 3 <= Rr[1] + side * 13 <= W - 3:
+            side = -side
+        tgt_r = np.array([Rr[0] + self.rng.uniform(-2, 4), Rr[1] + side * self.rng.uniform(13, 19)])
         tgt_r[0] = min(tgt_r[0], 97.0)
         tgt_r[1] = np.clip(tgt_r[1], 3, W - 3)
         sim.set_override(R, run_to(self.ab(tgt_r), self.rng.uniform(7.0, 7.8), 5.0))
@@ -376,7 +418,7 @@ class NoFollow(Script):
                 if eta <= flight + 0.3 or sim.frame >= self.max_pass:
                     sim.clear_override(self.c)
                     sim.clear_override(self.S)
-                    sim.pass_to(self.S, point=self.s_tgt, speed=self.rng.uniform(13, 17))
+                    sim.pass_to(self.S, speed=self.rng.uniform(13, 17), safe=True)
                     self.extra["t_pass"] = round(sim.frame * DT, 3)
                     self.phase = "passed"
             return
@@ -409,6 +451,7 @@ class LongShot(Script):
                 sim.clear_override(self.c)
                 sim.shoot(self.c, goal_prob=0.08)
                 self.shot_frame = sim.frame
+                sim.runs_enabled = True
                 self.done = True
 
 
@@ -466,6 +509,9 @@ class PressTurnover(Script):
         X = self.team
         if self.phase == "pressing":
             closed = np.linalg.norm(sim.pos[self.p1] - sim.pos[self.c]) < 3.0
+            seg = sim.pos[self.Q2] - sim.pos[self.c]
+            tp = np.clip(np.dot(sim.pos[self.p2] - sim.pos[self.c], seg) / max(np.dot(seg, seg), 1e-6), 0, 1)
+            closed = closed and np.linalg.norm(sim.pos[self.c] + seg * tp - sim.pos[self.p2]) < 2.5
             if sim.frame > self.press_start + int(4.5 * FPS):
                 raise ScriptAbort("press never reached the carrier")
             if sim.frame >= self.release_frame and closed and sim.carrier == self.c:
@@ -503,7 +549,7 @@ class PressTurnover(Script):
             return
         if self.phase == "counter" and sim.frame >= self._pass_at and sim.carrier == self.p2:
             sim.clear_override(self.shooter)
-            sim.pass_to(self.shooter, point=self.run_pt, speed=self.rng.uniform(15, 18))
+            sim.pass_to(self.shooter, speed=self.rng.uniform(15, 18), lead=2.0, safe=True)
             self.phase = "passed"
             return
         if self.phase in ("passed", "carry"):
@@ -528,9 +574,8 @@ class UnforcedTurnover(PressTurnover):
     def go(self, sim: Sim):
         X, Y = self.team, 1 - self.team
         c = sim.carrier
-        for d in outfield(X):                     # nobody steps up to the carrier
-            if sim.assign[d] == c:
-                sim.release(d, zonal_lock=True)
+        for d in outfield(X):                     # nobody steps up to the carrier: the team holds its shape
+            sim.release(d, zonal_lock=True)
         sim.unmarkable.add(c)
         mates = [m for m in outfield(Y) if m != c]
         dist = np.array([np.linalg.norm(sim.pos[m] - sim.pos[c]) for m in mates])

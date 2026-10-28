@@ -31,8 +31,8 @@ class MarkingParams:
     goal_side: float = 1.5
     w_ang: float = 2.0
     w_vel: float = 0.2
-    w_close: float = 0.6        # reward for closing in on the marking point
-    zone_cost: float = 6.5
+    w_close: float = 0.0        # reward for closing in on the marking point (0: zonal-heavy data)
+    zone_cost: float = 5.0
     gate: float = 12.0
     hold_frames: int = 5        # 0.2 s
     min_gain: float = 0.3       # metres of cost improvement needed to switch

@@ -4,7 +4,8 @@
   GET  /api/info              match metadata, model backend, list of chances
   GET  /api/moment/{id}       evidence pack + verified narration (runs the agent workflow once, then cached)
   GET  /api/clip/{id}         frames + overlays for the replay of one chance
-  GET  /api/frames            frames for live playback (from, to, step)
+  GET  /api/frames            frames for a time range (from, to, step)
+  GET  /api/match/meta|track|state   the whole match as compact binary arrays (scrubbable match view)
   GET  /api/summary           Tactical Analyst note for a time window (same verify/fallback workflow)
   GET  /api/eval              evaluation results (eval/results/results.json)
   WS   /ws/live               streams the match; pushes each chance's evidence + narration as it happens
@@ -36,7 +37,9 @@ WEB = ROOT / "web"
 TEAMS = {"A": {"name": "Northbridge Athletic", "short": "NBA", "color": "#e4572e", "formation": "4-3-3"},
          "B": {"name": "Harbour Vale", "short": "HVL", "color": "#2e86de", "formation": "4-4-2"}}
 
-app = FastAPI(title="Chance Genesis", version="0.1.0")
+app = FastAPI(title="Chance Genesis", version="0.2.0")
+from fastapi.middleware.gzip import GZipMiddleware  # noqa: E402
+app.add_middleware(GZipMiddleware, minimum_size=2000)
 STATE: dict = {}
 
 
@@ -130,9 +133,11 @@ async def moment(mid: str, language: str = "en"):
 def _frame(f: int, with_lanes: bool = False) -> dict:
     s = STATE
     pos = s["pos"][f]
+    dp = s["disp"][f] if "disp" in s else pos
+    db = s["disp_ball"][f] if "disp_ball" in s else s["ball"][f]
     out = {"f": int(f), "t": round(f / FPS, 2), "clock": fmt_clock(f / FPS),
-           "b": [round(float(s["ball"][f, 0]), 2), round(float(s["ball"][f, 1]), 2)],
-           "p": np.round(pos, 2).tolist(), "c": int(s["carrier"][f]), "poss": int(s["possession"][f]),
+           "b": [round(float(db[0]), 2), round(float(db[1]), 2)],
+           "p": np.round(dp, 2).tolist(), "c": int(s["carrier"][f]), "poss": int(s["possession"][f]),
            "m": s["assign"][f].astype(int).tolist()}
     off = s["offside"][f]
     out["off"] = None if np.isnan(off) else round(float(off), 2)
@@ -202,6 +207,52 @@ async def frames(start: int = 0, end: int = 250, step: int = 2):
     if end - start > 25 * 120:
         raise HTTPException(400, "at most 120 s per request")
     return {"frames": [_frame(f) for f in range(start, end + 1, max(1, step))]}
+
+
+STEP_MATCH = 2   # full-match download at 12.5 frames per second
+
+
+def _match_blobs() -> dict:
+    """Whole match as compact binary arrays, built once: the browser scrubs it locally."""
+    s = _load()
+    if "blobs" in s:
+        return s["blobs"]
+    sl = slice(0, None, STEP_MATCH)
+    dp = s["disp"][sl] if "disp" in s else s["pos"][sl]
+    db = s["disp_ball"][sl] if "disp_ball" in s else s["ball"][sl]
+    n = dp.shape[0]
+    track = np.empty((n, 23, 2), dtype=np.int16)                  # decimetres
+    track[:, :22] = np.round(dp * 10).astype(np.int16)
+    track[:, 22] = np.round(db * 10).astype(np.int16)
+    off = s["offside"][sl]
+    state = np.empty((n, 26), dtype=np.int8)                       # carrier, possession, 22 marks, offside (dm, 2 bytes)
+    state[:, 0] = s["carrier"][sl]
+    state[:, 1] = s["possession"][sl]
+    state[:, 2:24] = s["assign"][sl]
+    offi = np.where(np.isnan(off), -1, np.round(off * 10)).astype(np.int16)
+    state[:, 24:26] = offi.view(np.int8).reshape(n, 2)
+    s["blobs"] = {"track": track.tobytes(), "state": state.tobytes(), "n": n}
+    return s["blobs"]
+
+
+@app.get("/api/match/meta")
+async def match_meta():
+    b = _match_blobs()
+    return {"frames": b["n"], "fps": FPS / STEP_MATCH, "step": STEP_MATCH, "track_bytes": len(b["track"]),
+            "state_bytes": len(b["state"]), "layout": {"track": "int16 [frame][23][x,y] decimetres, row 22 = ball",
+                                                       "state": "int8 [frame][26]: carrier, possession, 22 marks, offside int16 dm"}}
+
+
+@app.get("/api/match/track")
+async def match_track():
+    from fastapi.responses import Response
+    return Response(_match_blobs()["track"], media_type="application/octet-stream")
+
+
+@app.get("/api/match/state")
+async def match_state():
+    from fastapi.responses import Response
+    return Response(_match_blobs()["state"], media_type="application/octet-stream")
 
 
 @app.get("/api/summary")

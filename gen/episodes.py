@@ -9,8 +9,8 @@ from typing import Optional
 
 import numpy as np
 
-from common.pitch import DT, FPS, PLAYER_IDS, keeper, outfield, team_of
-from gen.generator import Director, Sim
+from common.pitch import DT, FPS, ID_TO_IDX, L, PLAYER_IDS, W, keeper, outfield, own_goal, team_of
+from gen.generator import Director, Sim, run_to
 from gen.scripts import KINDS, SCRIPTS, ScriptAbort
 
 MAX_EPISODE_S = 70.0
@@ -48,7 +48,12 @@ def make_episode(kind: str, seed: int, team: Optional[int] = None, tries: int = 
         sim.script = SCRIPTS[kind](rng, tm, start)
         end = None
         aborted = False
+        want = 1 - tm if kind in ("press_turnover", "neg_unforced") else tm
         while sim.frame < MAX_EPISODE_S * FPS:
+            sc = sim.script
+            if sc.phase == "wait" and sim.possession != want and sim.carrier is not None \
+                    and sim.director.turnover_frame is None:
+                sim.director.turnover_frame = sim.frame + int(rng.uniform(3, 6) * FPS)   # win it back
             try:
                 sim.step()
             except ScriptAbort:
@@ -100,6 +105,7 @@ def make_match(seed: int, minutes: float = 90.0, n_chances: int = 24) -> dict:
         try:
             sim.step()
         except ScriptAbort:
+            sc.restore(sim)
             for i in list(sim.ov.keys()):
                 sim.clear_override(i)
             sim.locked.clear()
@@ -107,21 +113,50 @@ def make_match(seed: int, minutes: float = 90.0, n_chances: int = 24) -> dict:
             sim.zonal_locked.clear()
             sim.script = None
             sim.director_enabled = True
-            sim.frame += 0
+            sim.runs_enabled = True
             sc = None
-            continue
+            continue                # the script raises before anything moves: simulate this frame again
         if sc is not None and sc.done:
             truths.append(sc.truth())
             sim.script = None
+            sim.director_enabled = True
+            sim.director.steer_x = None
+            sim.director.turnover_frame = sim.frame + int(rng.uniform(15, 40) * FPS)
         if sim.dead:
-            dead_since = sim.frame if dead_since is None else dead_since
-            if sim.frame - dead_since >= int(rng.uniform(3, 5) * FPS):
-                shooter_team = team_of(_last_shooter(sim))
-                gk = keeper(1 - shooter_team)
+            if dead_since is None:
+                # ball out of play: goal kick after a miss, kick-off after a goal. The taker walks
+                # to the ball; the ball is placed (in tracking feeds it is not visible while dead).
+                dead_since = sim.frame
+                shot = _last_shot(sim)
+                shooter_team = team_of(ID_TO_IDX[shot["player"]])
+                conceding = 1 - shooter_team
+                if shot.get("outcome") == "goal":
+                    spot = np.array([L / 2, W / 2])
+                    mids = [i for i in outfield(conceding) if sim.role[i] in ("DM", "RCM", "LCM")]
+                    taker = min(mids, key=lambda i: np.linalg.norm(sim.pos[i] - spot))
+                    wait = rng.uniform(9, 12)
+                else:
+                    gl = own_goal(conceding)
+                    spot = np.array([gl[0] + (5.5 if gl[0] < L / 2 else -5.5), W / 2 + rng.choice([-1, 1]) * 9.0])
+                    taker = keeper(conceding)
+                    wait = rng.uniform(5, 8)
+                restart = (spot, int(taker), wait, conceding)
+                sim.set_override(int(taker), run_to(spot, 3.0, 2.5, 1.2))
+            spot, taker, wait, conceding = restart
+            el = (sim.frame - dead_since) * DT
+            if el > 2.0 and sim.possession != conceding:
+                sim.ball = spot.copy()                 # the ball is fetched and placed
+                sim.possession = conceding
+            if (el >= wait and np.linalg.norm(sim.pos[taker] - spot) < 1.0) or el > 16.0:
+                sim.clear_override(taker)
                 sim.dead = False
-                sim.flip_possession(gk)
-                sim.ball = sim.pos[gk].copy()
-                sim._event("restart", gk, sim.ball, sim.ball)
+                sim.ball = spot.copy()
+                sim.flip_possession(taker)
+                off = sim.ball - sim.pos[taker]
+                n = float(np.linalg.norm(off))
+                sim._ball_off = off if n <= 1.0 else off / n
+                sim.hold_until = sim.frame + int(rng.uniform(0.8, 1.6) * FPS)
+                sim._event("restart", taker, sim.ball, sim.ball, how="kick_off" if spot[0] == L / 2 else "goal_kick")
                 sim.director_enabled = True
                 sim.director.steer_x = None
                 sim.director.turnover_frame = sim.frame + int(rng.uniform(15, 40) * FPS)
@@ -130,6 +165,13 @@ def make_match(seed: int, minutes: float = 90.0, n_chances: int = 24) -> dict:
             sim.director.turnover_frame = sim.frame + int(rng.uniform(15, 40) * FPS)
             sim.director.steer_x = None
     return _pack(sim, {"episode_kind": "match", "seed": seed, "minutes": minutes}, truths)
+
+
+def _last_shot(sim: Sim) -> dict:
+    for ev in reversed(sim.events):
+        if ev["type"] == "shot":
+            return ev
+    return {"player": PLAYER_IDS[1], "outcome": "off_target"}
 
 
 def _last_shooter(sim: Sim) -> int:
@@ -160,9 +202,18 @@ def observe(ep: dict, noise_m: float, seed: int = 0, kind: str = "iid", corr_s: 
 
     kind="iid": independent Gaussian error per frame (std noise_m per coordinate).
     kind="ar1": temporally correlated error (AR(1), correlation time corr_s), same std; this is
-                the harder case because smoothing cannot average it away."""
+                the harder case because smoothing cannot average it away.
+    kind="feed": AR(1) drift plus 5 cm of per-frame flicker: the realistic feed used for the demo."""
     rng = np.random.default_rng(seed)
-    if noise_m > 0 and kind == "ar1":
+    if noise_m > 0 and kind == "feed":
+        # what a tracking provider delivers: mostly slow drift (AR(1), corr_s) plus a little flicker
+        from scipy.signal import lfilter
+        phi = float(np.exp(-1.0 / (FPS * corr_s)))
+        e = rng.normal(0, noise_m * np.sqrt(1 - phi ** 2), size=ep["pos"].shape)
+        e[0] = rng.normal(0, noise_m, size=e[0].shape)
+        err = lfilter([1.0], [1.0, -phi], e, axis=0) + rng.normal(0, 0.05, size=ep["pos"].shape)
+        pos = (ep["pos"] + err).astype(np.float32)
+    elif noise_m > 0 and kind == "ar1":
         from scipy.signal import lfilter
         phi = float(np.exp(-1.0 / (FPS * corr_s)))
         e = rng.normal(0, noise_m * np.sqrt(1 - phi ** 2), size=ep["pos"].shape)
@@ -188,9 +239,9 @@ def observe(ep: dict, noise_m: float, seed: int = 0, kind: str = "iid", corr_s: 
 
 
 # ---------------------------------------------------------------------- disk IO
-def save_episode(ep: dict, root: Path, name: str, noise_m: float, obs_seed: int):
+def save_episode(ep: dict, root: Path, name: str, noise_m: float, obs_seed: int, noise_kind: str = "feed"):
     """Observation and truth go to different directories; analysis only ever reads obs/."""
-    obs = observe(ep, noise_m, obs_seed)
+    obs = observe(ep, noise_m, obs_seed, kind=noise_kind)
     (root / "obs").mkdir(parents=True, exist_ok=True)
     (root / "truth").mkdir(parents=True, exist_ok=True)
     np.savez_compressed(root / "obs" / f"{name}.npz", pos=obs["pos"], ball=obs["ball"])

@@ -2,17 +2,8 @@
  {
   "kind": "decoy_run",
   "true": "decoy_run",
-  "pred": "none",
-  "seed": 10000,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
   "pred": "decoy_run",
-  "seed": 10001,
+  "seed": 10000,
   "players_ok": true,
   "t_err": 0.6400000000000006,
   "verdict": "pulled_by_design"
@@ -21,9 +12,18 @@
   "kind": "decoy_run",
   "true": "decoy_run",
   "pred": "decoy_run",
+  "seed": 10001,
+  "players_ok": true,
+  "t_err": 0.4800000000000004,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
   "seed": 10002,
   "players_ok": true,
-  "t_err": 0.6799999999999997,
+  "t_err": 0.40000000000000213,
   "verdict": "pulled_by_design"
  },
  {
@@ -32,7 +32,7 @@
   "pred": "decoy_run",
   "seed": 10003,
   "players_ok": true,
-  "t_err": 0.9600000000000009,
+  "t_err": 0.6000000000000014,
   "verdict": "pulled_by_design"
  },
  {
@@ -41,7 +41,7 @@
   "pred": "decoy_run",
   "seed": 10004,
   "players_ok": true,
-  "t_err": 0.3200000000000003,
+  "t_err": 0.360000000000003,
   "verdict": "pulled_by_design"
  },
  {
@@ -50,17 +50,17 @@
   "pred": "decoy_run",
   "seed": 10005,
   "players_ok": true,
-  "t_err": 0.879999999999999,
+  "t_err": 0.5600000000000005,
   "verdict": "pulled_by_design"
  },
  {
   "kind": "decoy_run",
   "true": "decoy_run",
-  "pred": "none",
+  "pred": "decoy_run",
   "seed": 10006,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
+  "players_ok": true,
+  "t_err": 0.35999999999999943,
+  "verdict": "pulled_by_design"
  },
  {
   "kind": "decoy_run",
@@ -74,242 +74,8 @@
  {
   "kind": "decoy_run",
   "true": "decoy_run",
-  "pred": "none",
+  "pred": "decoy_run",
   "seed": 10008,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10009,
-  "players_ok": true,
-  "t_err": 0.3999999999999986,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "none",
-  "seed": 10010,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10011,
-  "players_ok": true,
-  "t_err": 0.27999999999999936,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "lost_marker",
-  "seed": 10012,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "switched_off"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10013,
-  "players_ok": true,
-  "t_err": 3.4399999999999995,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10014,
-  "players_ok": true,
-  "t_err": 0.5199999999999996,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10015,
-  "players_ok": true,
-  "t_err": 0.40000000000000213,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "none",
-  "seed": 10016,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10017,
-  "players_ok": true,
-  "t_err": 0.8000000000000007,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10018,
-  "players_ok": true,
-  "t_err": 0.5600000000000023,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "lost_marker",
-  "seed": 10019,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "switched_off"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10020,
-  "players_ok": true,
-  "t_err": 0.7200000000000024,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "none",
-  "seed": 10021,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "none",
-  "seed": 10022,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10023,
-  "players_ok": true,
-  "t_err": 0.7199999999999989,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "none",
-  "seed": 10024,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10025,
-  "players_ok": true,
-  "t_err": 0.7999999999999972,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10026,
-  "players_ok": true,
-  "t_err": 0.6799999999999997,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10027,
-  "players_ok": true,
-  "t_err": 0.7200000000000024,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10028,
-  "players_ok": true,
-  "t_err": 0.879999999999999,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "none",
-  "seed": 10029,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10030,
-  "players_ok": true,
-  "t_err": 0.5600000000000005,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10031,
-  "players_ok": true,
-  "t_err": 0.5999999999999996,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "none",
-  "seed": 10032,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10033,
-  "players_ok": true,
-  "t_err": 0.8000000000000007,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
-  "seed": 10034,
   "players_ok": true,
   "t_err": 0.08000000000000007,
   "verdict": "pulled_by_design"
@@ -318,9 +84,243 @@
   "kind": "decoy_run",
   "true": "decoy_run",
   "pred": "decoy_run",
+  "seed": 10009,
+  "players_ok": true,
+  "t_err": 0.4800000000000004,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10010,
+  "players_ok": true,
+  "t_err": 0.5599999999999987,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "none",
+  "seed": 10011,
+  "players_ok": null,
+  "t_err": null,
+  "verdict": "unattributed"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "none",
+  "seed": 10012,
+  "players_ok": null,
+  "t_err": null,
+  "verdict": "unattributed"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10013,
+  "players_ok": true,
+  "t_err": 0.5199999999999996,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10014,
+  "players_ok": true,
+  "t_err": 0.8399999999999999,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10015,
+  "players_ok": true,
+  "t_err": 0.5600000000000005,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10016,
+  "players_ok": true,
+  "t_err": 0.120000000000001,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10017,
+  "players_ok": true,
+  "t_err": 0.6799999999999997,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10018,
+  "players_ok": true,
+  "t_err": 0.9600000000000009,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10019,
+  "players_ok": true,
+  "t_err": 0.08000000000000007,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "lost_marker",
+  "seed": 10020,
+  "players_ok": null,
+  "t_err": null,
+  "verdict": "switched_off"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10021,
+  "players_ok": true,
+  "t_err": 0.759999999999998,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10022,
+  "players_ok": true,
+  "t_err": 0.7999999999999972,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10023,
+  "players_ok": true,
+  "t_err": 0.3200000000000003,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10024,
+  "players_ok": true,
+  "t_err": 0.35999999999999943,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "none",
+  "seed": 10025,
+  "players_ok": null,
+  "t_err": null,
+  "verdict": "unattributed"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10026,
+  "players_ok": true,
+  "t_err": 0.4800000000000004,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10027,
+  "players_ok": true,
+  "t_err": 1.879999999999999,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10028,
+  "players_ok": true,
+  "t_err": 0.20000000000000284,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10029,
+  "players_ok": true,
+  "t_err": 0.6799999999999997,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10030,
+  "players_ok": true,
+  "t_err": 1.0399999999999991,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "none",
+  "seed": 10031,
+  "players_ok": null,
+  "t_err": null,
+  "verdict": "unattributed"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10032,
+  "players_ok": true,
+  "t_err": 0.9600000000000009,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10033,
+  "players_ok": true,
+  "t_err": 1.0400000000000027,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "none",
+  "seed": 10034,
+  "players_ok": null,
+  "t_err": null,
+  "verdict": "unattributed"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
   "seed": 10035,
   "players_ok": true,
-  "t_err": 0.879999999999999,
+  "t_err": 0.7200000000000006,
   "verdict": "pulled_by_design"
  },
  {
@@ -329,14 +329,23 @@
   "pred": "decoy_run",
   "seed": 10036,
   "players_ok": true,
-  "t_err": 0.03999999999999915,
+  "t_err": 0.5199999999999996,
+  "verdict": "pulled_by_design"
+ },
+ {
+  "kind": "decoy_run",
+  "true": "decoy_run",
+  "pred": "decoy_run",
+  "seed": 10037,
+  "players_ok": true,
+  "t_err": 0.15999999999999837,
   "verdict": "pulled_by_design"
  },
  {
   "kind": "decoy_run",
   "true": "decoy_run",
   "pred": "lost_marker",
-  "seed": 10037,
+  "seed": 10038,
   "players_ok": null,
   "t_err": null,
   "verdict": "switched_off"
@@ -345,18 +354,9 @@
   "kind": "decoy_run",
   "true": "decoy_run",
   "pred": "decoy_run",
-  "seed": 10038,
-  "players_ok": true,
-  "t_err": 0.7599999999999998,
-  "verdict": "pulled_by_design"
- },
- {
-  "kind": "decoy_run",
-  "true": "decoy_run",
-  "pred": "decoy_run",
   "seed": 10039,
   "players_ok": true,
-  "t_err": 0.3600000000000012,
+  "t_err": 0.6400000000000006,
   "verdict": "pulled_by_design"
  },
  {
@@ -365,7 +365,7 @@
   "pred": "lost_marker",
   "seed": 11000,
   "players_ok": true,
-  "t_err": 1.0,
+  "t_err": 0.879999999999999,
   "verdict": "switched_off"
  },
  {
@@ -374,7 +374,7 @@
   "pred": "lost_marker",
   "seed": 11001,
   "players_ok": true,
-  "t_err": 0.5199999999999996,
+  "t_err": 0.8399999999999999,
   "verdict": "switched_off"
  },
  {
@@ -383,7 +383,7 @@
   "pred": "lost_marker",
   "seed": 11002,
   "players_ok": true,
-  "t_err": 0.7200000000000006,
+  "t_err": 0.6400000000000006,
   "verdict": "switched_off"
  },
  {
@@ -392,7 +392,7 @@
   "pred": "lost_marker",
   "seed": 11003,
   "players_ok": true,
-  "t_err": 0.8399999999999999,
+  "t_err": 0.28000000000000114,
   "verdict": "switched_off"
  },
  {
@@ -401,7 +401,7 @@
   "pred": "lost_marker",
   "seed": 11004,
   "players_ok": true,
-  "t_err": 0.6399999999999988,
+  "t_err": 0.120000000000001,
   "verdict": "switched_off"
  },
  {
@@ -410,7 +410,7 @@
   "pred": "lost_marker",
   "seed": 11005,
   "players_ok": true,
-  "t_err": 0.879999999999999,
+  "t_err": 0.4400000000000013,
   "verdict": "switched_off"
  },
  {
@@ -419,23 +419,32 @@
   "pred": "lost_marker",
   "seed": 11006,
   "players_ok": true,
-  "t_err": 0.4800000000000004,
+  "t_err": 0.7600000000000016,
+  "verdict": "switched_off"
+ },
+ {
+  "kind": "lost_marker",
+  "true": "lost_marker",
+  "pred": "lost_marker",
+  "seed": 11007,
+  "players_ok": true,
+  "t_err": 0.6799999999999997,
+  "verdict": "switched_off"
+ },
+ {
+  "kind": "lost_marker",
+  "true": "lost_marker",
+  "pred": "lost_marker",
+  "seed": 11008,
+  "players_ok": true,
+  "t_err": 0.7600000000000016,
   "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
   "true": "lost_marker",
   "pred": "none",
-  "seed": 11007,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
- },
- {
-  "kind": "lost_marker",
-  "true": "lost_marker",
-  "pred": "none",
-  "seed": 11008,
+  "seed": 11009,
   "players_ok": null,
   "t_err": null,
   "verdict": "unattributed"
@@ -444,19 +453,10 @@
   "kind": "lost_marker",
   "true": "lost_marker",
   "pred": "lost_marker",
-  "seed": 11009,
-  "players_ok": true,
-  "t_err": 0.27999999999999936,
-  "verdict": "switched_off"
- },
- {
-  "kind": "lost_marker",
-  "true": "lost_marker",
-  "pred": "none",
   "seed": 11010,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
+  "players_ok": true,
+  "t_err": 0.5199999999999996,
+  "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
@@ -464,17 +464,17 @@
   "pred": "lost_marker",
   "seed": 11011,
   "players_ok": true,
-  "t_err": 0.8800000000000008,
+  "t_err": 0.5199999999999996,
   "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
   "true": "lost_marker",
-  "pred": "none",
+  "pred": "lost_marker",
   "seed": 11012,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "outpaced"
+  "players_ok": true,
+  "t_err": 0.7599999999999998,
+  "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
@@ -482,17 +482,17 @@
   "pred": "lost_marker",
   "seed": 11013,
   "players_ok": true,
-  "t_err": 0.5599999999999987,
+  "t_err": 0.40000000000000036,
   "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
   "true": "lost_marker",
-  "pred": "lost_marker",
+  "pred": "none",
   "seed": 11014,
-  "players_ok": true,
-  "t_err": 0.16000000000000014,
-  "verdict": "switched_off"
+  "players_ok": null,
+  "t_err": null,
+  "verdict": "unattributed"
  },
  {
   "kind": "lost_marker",
@@ -509,7 +509,7 @@
   "pred": "lost_marker",
   "seed": 11016,
   "players_ok": true,
-  "t_err": 0.8399999999999999,
+  "t_err": 0.759999999999998,
   "verdict": "switched_off"
  },
  {
@@ -518,7 +518,7 @@
   "pred": "lost_marker",
   "seed": 11017,
   "players_ok": true,
-  "t_err": 0.4399999999999995,
+  "t_err": 0.8399999999999999,
   "verdict": "switched_off"
  },
  {
@@ -527,7 +527,7 @@
   "pred": "lost_marker",
   "seed": 11018,
   "players_ok": true,
-  "t_err": 0.8399999999999999,
+  "t_err": 0.7200000000000024,
   "verdict": "switched_off"
  },
  {
@@ -536,7 +536,7 @@
   "pred": "lost_marker",
   "seed": 11019,
   "players_ok": true,
-  "t_err": 0.5600000000000005,
+  "t_err": 0.4800000000000004,
   "verdict": "switched_off"
  },
  {
@@ -544,8 +544,8 @@
   "true": "lost_marker",
   "pred": "lost_marker",
   "seed": 11020,
-  "players_ok": false,
-  "t_err": 0.3999999999999986,
+  "players_ok": true,
+  "t_err": 0.5599999999999987,
   "verdict": "switched_off"
  },
  {
@@ -554,7 +554,7 @@
   "pred": "lost_marker",
   "seed": 11021,
   "players_ok": true,
-  "t_err": 0.8399999999999999,
+  "t_err": 0.5999999999999979,
   "verdict": "switched_off"
  },
  {
@@ -572,7 +572,7 @@
   "pred": "lost_marker",
   "seed": 11023,
   "players_ok": true,
-  "t_err": 0.16000000000000014,
+  "t_err": 0.7200000000000006,
   "verdict": "switched_off"
  },
  {
@@ -581,17 +581,17 @@
   "pred": "lost_marker",
   "seed": 11024,
   "players_ok": true,
-  "t_err": 0.23999999999999844,
+  "t_err": 0.5999999999999979,
   "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
   "true": "lost_marker",
-  "pred": "lost_marker",
+  "pred": "none",
   "seed": 11025,
-  "players_ok": true,
-  "t_err": 0.3199999999999985,
-  "verdict": "switched_off"
+  "players_ok": null,
+  "t_err": null,
+  "verdict": "unattributed"
  },
  {
   "kind": "lost_marker",
@@ -599,7 +599,7 @@
   "pred": "lost_marker",
   "seed": 11026,
   "players_ok": true,
-  "t_err": 0.4800000000000004,
+  "t_err": 0.5199999999999996,
   "verdict": "switched_off"
  },
  {
@@ -608,7 +608,7 @@
   "pred": "lost_marker",
   "seed": 11027,
   "players_ok": true,
-  "t_err": 0.5199999999999996,
+  "t_err": 0.4800000000000004,
   "verdict": "switched_off"
  },
  {
@@ -617,7 +617,7 @@
   "pred": "lost_marker",
   "seed": 11028,
   "players_ok": true,
-  "t_err": 0.4399999999999995,
+  "t_err": 0.0799999999999983,
   "verdict": "switched_off"
  },
  {
@@ -626,17 +626,17 @@
   "pred": "lost_marker",
   "seed": 11029,
   "players_ok": true,
-  "t_err": 0.5199999999999996,
+  "t_err": 0.6799999999999997,
   "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
   "true": "lost_marker",
-  "pred": "none",
+  "pred": "lost_marker",
   "seed": 11030,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
+  "players_ok": true,
+  "t_err": 0.9199999999999999,
+  "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
@@ -644,17 +644,17 @@
   "pred": "lost_marker",
   "seed": 11031,
   "players_ok": true,
-  "t_err": 0.6799999999999997,
+  "t_err": 0.5599999999999987,
   "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
   "true": "lost_marker",
-  "pred": "none",
+  "pred": "lost_marker",
   "seed": 11032,
-  "players_ok": null,
-  "t_err": null,
-  "verdict": "unattributed"
+  "players_ok": true,
+  "t_err": 1.1199999999999974,
+  "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
@@ -662,7 +662,7 @@
   "pred": "lost_marker",
   "seed": 11033,
   "players_ok": true,
-  "t_err": 0.16000000000000014,
+  "t_err": 0.6000000000000014,
   "verdict": "switched_off"
  },
  {
@@ -671,7 +671,7 @@
   "pred": "lost_marker",
   "seed": 11034,
   "players_ok": true,
-  "t_err": 0.4799999999999969,
+  "t_err": 0.6400000000000006,
   "verdict": "switched_off"
  },
  {
@@ -680,7 +680,7 @@
   "pred": "lost_marker",
   "seed": 11035,
   "players_ok": true,
-  "t_err": 0.20000000000000284,
+  "t_err": 0.7599999999999998,
   "verdict": "switched_off"
  },
  {
@@ -689,14 +689,23 @@
   "pred": "lost_marker",
   "seed": 11036,
   "players_ok": true,
-  "t_err": 0.03999999999999915,
+  "t_err": 0.5599999999999952,
+  "verdict": "switched_off"
+ },
+ {
+  "kind": "lost_marker",
+  "true": "lost_marker",
+  "pred": "lost_marker",
+  "seed": 11037,
+  "players_ok": true,
+  "t_err": 0.3199999999999985,
   "verdict": "switched_off"
  },
  {
   "kind": "lost_marker",
   "true": "lost_marker",
   "pred": "none",
-  "seed": 11037,
+  "seed": 11038,
   "players_ok": null,
   "t_err": null,
   "verdict": "unattributed"
@@ -705,18 +714,9 @@
   "kind": "lost_marker",
   "true": "lost_marker",
   "pred": "lost_marker",
-  "seed": 11038,
-  "players_ok": true,
-  "t_err": 0.3200000000000003,
-  "verdict": "switched_off"
- },
- {
-  "kind": "lost_marker",
-  "true": "lost_marker",
-  "pred": "lost_marker",
   "seed": 11039,
   "players_ok": true,
-  "t_err": 0.120000000000001,
+  "t_err": 0.5600000000000005,
   "verdict": "switched_off"
  },
  {
@@ -725,7 +725,7 @@
   "pred": "press_turnover",
   "seed": 12000,
   "players_ok": true,
-  "t_err": 0.12000000000000455,
+  "t_err": 0.8000000000000007,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -735,7 +735,7 @@
   "pred": "press_turnover",
   "seed": 12001,
   "players_ok": true,
-  "t_err": 2.039999999999999,
+  "t_err": 1.7599999999999998,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -745,7 +745,7 @@
   "pred": "press_turnover",
   "seed": 12002,
   "players_ok": true,
-  "t_err": 1.9199999999999982,
+  "t_err": 1.3200000000000003,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -755,7 +755,7 @@
   "pred": "press_turnover",
   "seed": 12003,
   "players_ok": true,
-  "t_err": 0.1999999999999993,
+  "t_err": 2.039999999999992,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -765,7 +765,7 @@
   "pred": "press_turnover",
   "seed": 12004,
   "players_ok": true,
-  "t_err": 1.5599999999999987,
+  "t_err": 1.4000000000000004,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -775,9 +775,9 @@
   "pred": "press_turnover",
   "seed": 12005,
   "players_ok": true,
-  "t_err": 0.11999999999999744,
+  "t_err": 1.6800000000000068,
   "verdict": "forced_error",
-  "pressers_overlap": 1.0
+  "pressers_overlap": 0.6666666666666666
  },
  {
   "kind": "press_turnover",
@@ -785,7 +785,7 @@
   "pred": "press_turnover",
   "seed": 12006,
   "players_ok": true,
-  "t_err": 1.5199999999999996,
+  "t_err": 1.240000000000002,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -795,7 +795,7 @@
   "pred": "press_turnover",
   "seed": 12007,
   "players_ok": true,
-  "t_err": 1.7599999999999998,
+  "t_err": 1.2800000000000011,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -805,7 +805,7 @@
   "pred": "press_turnover",
   "seed": 12008,
   "players_ok": true,
-  "t_err": 2.0799999999999983,
+  "t_err": 1.2800000000000011,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -815,7 +815,7 @@
   "pred": "press_turnover",
   "seed": 12009,
   "players_ok": true,
-  "t_err": 2.039999999999999,
+  "t_err": 1.3200000000000003,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -825,7 +825,7 @@
   "pred": "press_turnover",
   "seed": 12010,
   "players_ok": true,
-  "t_err": 2.0799999999999983,
+  "t_err": 1.6400000000000006,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -835,7 +835,7 @@
   "pred": "press_turnover",
   "seed": 12011,
   "players_ok": true,
-  "t_err": 2.16,
+  "t_err": 1.2800000000000011,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -845,7 +845,7 @@
   "pred": "press_turnover",
   "seed": 12012,
   "players_ok": true,
-  "t_err": 2.120000000000001,
+  "t_err": 0.7999999999999972,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -855,7 +855,7 @@
   "pred": "press_turnover",
   "seed": 12013,
   "players_ok": true,
-  "t_err": 0.11999999999999744,
+  "t_err": 0.3200000000000003,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -865,7 +865,7 @@
   "pred": "press_turnover",
   "seed": 12014,
   "players_ok": true,
-  "t_err": 1.0800000000000018,
+  "t_err": 1.6400000000000006,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -875,7 +875,7 @@
   "pred": "press_turnover",
   "seed": 12015,
   "players_ok": true,
-  "t_err": 0.1600000000000037,
+  "t_err": 1.4800000000000004,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -885,7 +885,7 @@
   "pred": "press_turnover",
   "seed": 12016,
   "players_ok": true,
-  "t_err": 2.0,
+  "t_err": 1.6400000000000006,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -895,7 +895,7 @@
   "pred": "press_turnover",
   "seed": 12017,
   "players_ok": true,
-  "t_err": 2.1199999999999974,
+  "t_err": 1.5200000000000031,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -905,7 +905,7 @@
   "pred": "press_turnover",
   "seed": 12018,
   "players_ok": true,
-  "t_err": 2.039999999999999,
+  "t_err": 0.9600000000000009,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -915,7 +915,7 @@
   "pred": "press_turnover",
   "seed": 12019,
   "players_ok": true,
-  "t_err": 1.4799999999999969,
+  "t_err": 0.2400000000000002,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -925,7 +925,7 @@
   "pred": "press_turnover",
   "seed": 12020,
   "players_ok": true,
-  "t_err": 1.8399999999999999,
+  "t_err": 2.0,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -935,7 +935,7 @@
   "pred": "press_turnover",
   "seed": 12021,
   "players_ok": true,
-  "t_err": 0.2400000000000002,
+  "t_err": 0.240000000000002,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -945,9 +945,9 @@
   "pred": "press_turnover",
   "seed": 12022,
   "players_ok": true,
-  "t_err": 1.4000000000000004,
+  "t_err": 0.6799999999999997,
   "verdict": "forced_error",
-  "pressers_overlap": 1.0
+  "pressers_overlap": 0.6666666666666666
  },
  {
   "kind": "press_turnover",
@@ -955,7 +955,7 @@
   "pred": "press_turnover",
   "seed": 12023,
   "players_ok": true,
-  "t_err": 1.9199999999999946,
+  "t_err": 1.1199999999999974,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -965,7 +965,7 @@
   "pred": "press_turnover",
   "seed": 12024,
   "players_ok": true,
-  "t_err": 1.240000000000002,
+  "t_err": 1.120000000000001,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -985,7 +985,7 @@
   "pred": "press_turnover",
   "seed": 12026,
   "players_ok": true,
-  "t_err": 1.8800000000000008,
+  "t_err": 1.0,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -995,9 +995,9 @@
   "pred": "press_turnover",
   "seed": 12027,
   "players_ok": true,
-  "t_err": 1.5600000000000005,
+  "t_err": 0.759999999999998,
   "verdict": "forced_error",
-  "pressers_overlap": 1.0
+  "pressers_overlap": 0.6666666666666666
  },
  {
   "kind": "press_turnover",
@@ -1005,7 +1005,7 @@
   "pred": "press_turnover",
   "seed": 12028,
   "players_ok": true,
-  "t_err": 1.92,
+  "t_err": 1.120000000000001,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -1015,9 +1015,9 @@
   "pred": "press_turnover",
   "seed": 12029,
   "players_ok": true,
-  "t_err": 1.879999999999999,
+  "t_err": 1.200000000000001,
   "verdict": "forced_error",
-  "pressers_overlap": 1.0
+  "pressers_overlap": 0.6666666666666666
  },
  {
   "kind": "press_turnover",
@@ -1025,7 +1025,7 @@
   "pred": "press_turnover",
   "seed": 12030,
   "players_ok": true,
-  "t_err": 1.9199999999999982,
+  "t_err": 0.35999999999999943,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -1035,7 +1035,7 @@
   "pred": "press_turnover",
   "seed": 12031,
   "players_ok": true,
-  "t_err": 2.08,
+  "t_err": 0.9600000000000009,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -1045,9 +1045,9 @@
   "pred": "press_turnover",
   "seed": 12032,
   "players_ok": true,
-  "t_err": 2.400000000000002,
+  "t_err": 1.4400000000000013,
   "verdict": "forced_error",
-  "pressers_overlap": 1.0
+  "pressers_overlap": 0.6666666666666666
  },
  {
   "kind": "press_turnover",
@@ -1055,7 +1055,7 @@
   "pred": "press_turnover",
   "seed": 12033,
   "players_ok": true,
-  "t_err": 1.7199999999999989,
+  "t_err": 1.5600000000000023,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -1065,19 +1065,18 @@
   "pred": "press_turnover",
   "seed": 12034,
   "players_ok": true,
-  "t_err": 0.8000000000000007,
+  "t_err": 0.7200000000000006,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
  {
   "kind": "press_turnover",
   "true": "press_turnover",
-  "pred": "press_turnover",
+  "pred": "none",
   "seed": 12035,
-  "players_ok": true,
-  "t_err": 2.16,
-  "verdict": "forced_error",
-  "pressers_overlap": 1.0
+  "players_ok": null,
+  "t_err": null,
+  "verdict": "unattributed"
  },
  {
   "kind": "press_turnover",
@@ -1085,7 +1084,7 @@
   "pred": "press_turnover",
   "seed": 12036,
   "players_ok": true,
-  "t_err": 1.7199999999999989,
+  "t_err": 0.9600000000000009,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -1095,7 +1094,7 @@
   "pred": "press_turnover",
   "seed": 12037,
   "players_ok": true,
-  "t_err": 1.959999999999999,
+  "t_err": 1.6000000000000085,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -1105,7 +1104,7 @@
   "pred": "press_turnover",
   "seed": 12038,
   "players_ok": true,
-  "t_err": 2.0,
+  "t_err": 1.5199999999999996,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -1115,7 +1114,7 @@
   "pred": "press_turnover",
   "seed": 12039,
   "players_ok": true,
-  "t_err": 2.039999999999999,
+  "t_err": 1.3200000000000003,
   "verdict": "forced_error",
   "pressers_overlap": 1.0
  },
@@ -1140,11 +1139,11 @@
  {
   "kind": "neg_nofollow",
   "true": "none",
-  "pred": "lost_marker",
+  "pred": "none",
   "seed": 13002,
   "players_ok": null,
   "t_err": null,
-  "verdict": "switched_off"
+  "verdict": "unattributed"
  },
  {
   "kind": "neg_nofollow",
@@ -1212,11 +1211,11 @@
  {
   "kind": "neg_nofollow",
   "true": "none",
-  "pred": "lost_marker",
+  "pred": "none",
   "seed": 13010,
   "players_ok": null,
   "t_err": null,
-  "verdict": "switched_off"
+  "verdict": "unattributed"
  },
  {
   "kind": "neg_nofollow",
@@ -1473,11 +1472,11 @@
  {
   "kind": "neg_nofollow",
   "true": "none",
-  "pred": "lost_marker",
+  "pred": "none",
   "seed": 13039,
   "players_ok": null,
   "t_err": null,
-  "verdict": "switched_off"
+  "verdict": "unattributed"
  },
  {
   "kind": "neg_outpaced",
@@ -1486,7 +1485,7 @@
   "seed": 14000,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1495,7 +1494,7 @@
   "seed": 14001,
   "players_ok": null,
   "t_err": null,
-  "verdict": "outpaced"
+  "verdict": "unattributed"
  },
  {
   "kind": "neg_outpaced",
@@ -1504,7 +1503,7 @@
   "seed": 14002,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1513,7 +1512,7 @@
   "seed": 14003,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1522,16 +1521,16 @@
   "seed": 14004,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
   "true": "none",
-  "pred": "lost_marker",
+  "pred": "none",
   "seed": 14005,
   "players_ok": null,
   "t_err": null,
-  "verdict": "switched_off"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1549,7 +1548,7 @@
   "seed": 14007,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1567,7 +1566,7 @@
   "seed": 14009,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1576,7 +1575,7 @@
   "seed": 14010,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1594,7 +1593,7 @@
   "seed": 14012,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1612,7 +1611,7 @@
   "seed": 14014,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1621,7 +1620,7 @@
   "seed": 14015,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1648,7 +1647,7 @@
   "seed": 14018,
   "players_ok": null,
   "t_err": null,
-  "verdict": "outpaced"
+  "verdict": "unattributed"
  },
  {
   "kind": "neg_outpaced",
@@ -1657,7 +1656,7 @@
   "seed": 14019,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1693,7 +1692,7 @@
   "seed": 14023,
   "players_ok": null,
   "t_err": null,
-  "verdict": "outpaced"
+  "verdict": "unattributed"
  },
  {
   "kind": "neg_outpaced",
@@ -1747,7 +1746,7 @@
   "seed": 14029,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1756,7 +1755,7 @@
   "seed": 14030,
   "players_ok": null,
   "t_err": null,
-  "verdict": "outpaced"
+  "verdict": "unattributed"
  },
  {
   "kind": "neg_outpaced",
@@ -1765,7 +1764,7 @@
   "seed": 14031,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
@@ -1774,7 +1773,7 @@
   "seed": 14032,
   "players_ok": null,
   "t_err": null,
-  "verdict": "outpaced"
+  "verdict": "unattributed"
  },
  {
   "kind": "neg_outpaced",
@@ -1828,16 +1827,16 @@
   "seed": 14038,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_outpaced",
   "true": "none",
-  "pred": "lost_marker",
+  "pred": "none",
   "seed": 14039,
   "players_ok": null,
   "t_err": null,
-  "verdict": "switched_off"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_long",
@@ -1873,7 +1872,7 @@
   "seed": 15003,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_long",
@@ -1918,16 +1917,16 @@
   "seed": 15008,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "outpaced"
  },
  {
   "kind": "neg_long",
   "true": "none",
-  "pred": "none",
+  "pred": "decoy_run",
   "seed": 15009,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "pulled_by_design"
  },
  {
   "kind": "neg_long",
@@ -2062,7 +2061,7 @@
   "seed": 15024,
   "players_ok": null,
   "t_err": null,
-  "verdict": "outpaced"
+  "verdict": "unattributed"
  },
  {
   "kind": "neg_long",
@@ -2152,7 +2151,7 @@
   "seed": 15034,
   "players_ok": null,
   "t_err": null,
-  "verdict": "outpaced"
+  "verdict": "unattributed"
  },
  {
   "kind": "neg_long",
@@ -2193,11 +2192,11 @@
  {
   "kind": "neg_long",
   "true": "none",
-  "pred": "none",
+  "pred": "decoy_run",
   "seed": 15039,
   "players_ok": null,
   "t_err": null,
-  "verdict": "unattributed"
+  "verdict": "pulled_by_design"
  },
  {
   "kind": "neg_unforced",

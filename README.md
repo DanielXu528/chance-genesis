@@ -21,19 +21,19 @@ Premier League Studio). All data is synthetic; the league, clubs and players are
 
 | Metric | Result |
 |---|---|
-| Cause attribution accuracy (7 scenario kinds, 4 classes) | **90.4%** |
-| Real causes: cause **and** key players correct | **80.8%** |
-| Hard negatives wrongly given a tactical cause | **3.1%** |
-| Median error of the detected start of the cause | 0.78 s |
-| Decoy run: precision / recall | 100.0% / 65.0% |
-| Lost marker: precision / recall | 78.0% / 80.0% |
-| Pressing trap: precision / recall | 100.0% / 100.0% |
-| Marking inference, frame accuracy (Viterbi) | 88.6% |
-| Accuracy under correlated tracking error 0.3 / 0.6 / 1.0 m | 90.7% / 88.6% / 80.7% |
-| Full 90-minute match analysed in | 11.4 s (474× real time) |
-| Per-frame live stage, p50 / p99 | 0.21 / 0.57 ms (budget 40 ms) |
-| Cause tracing after a shot, median | 2.7 ms |
-| Generator: distance per player per 90 / sprints per 90 | 10.5 km / 33 |
+| Cause attribution accuracy (7 scenario kinds, 4 classes) | **94.3%** |
+| Real causes: cause **and** key players correct | **88.3%** |
+| Hard negatives wrongly given a tactical cause | **1.2%** |
+| Median error of the detected start of the cause | 0.72 s |
+| Decoy run: precision / recall | 94.1% / 80.0% |
+| Lost marker: precision / recall | 92.1% / 87.5% |
+| Pressing trap: precision / recall | 100.0% / 97.5% |
+| Marking inference, frame accuracy (Viterbi) | 78.6% |
+| Accuracy under correlated tracking error 0.3 / 0.6 / 1.0 m | 93.9% / 90.4% / 86.8% |
+| Full 90-minute match analysed in | 8.1 s (671× real time) |
+| Per-frame live stage, p50 / p99 | 0.16 / 0.38 ms (budget 40 ms) |
+| Cause tracing after a shot, median | 1.5 ms |
+| Generator: distance per player per 90 / sprints per 90 | 11.4 km / 28 |
 
 ![Accuracy vs tracking noise](eval/results/noise_curve.png)
 <!-- RESULTS:END -->
@@ -78,21 +78,39 @@ flowchart LR
     V -->|rejected, retry once| N
     V -->|rejected twice| F[Template fallback]
   end
-  W --> UI[Studio UI + WebSocket live feed<br/>Azure Container Apps]
+  W --> UI[Studio UI: full-match timeline,<br/>replays, telestrator<br/>Azure Container Apps]
   P --> E
 ```
 
 ### 1. Synthetic data with hidden ground truth (`gen/`)
 
-The challenge allows only synthetic data, so the generator is part of the product: 22 agents with
-formation anchors (4-3-3 vs 4-4-2) that shift with the ball, Ornstein–Uhlenbeck off-ball movement, speed
-and acceleration limits, and ball possession driven by passes and tackles. Scripted chances override only
-a handful of players; everyone else keeps behaving normally.
+The challenge allows only synthetic data, so the generator is part of the product. It is a 25 Hz
+multi-agent simulation built to look like a match, not like a diagram:
+
+- **Team shape.** 4-3-3 against 4-4-2. Each team holds its shape around a reference point that follows
+  the ball with a 1.5 s lag, so blocks slide and recover instead of snapping. Players have their own top
+  speed (7.8–9.2 m/s), acceleration limit and a small dead zone, so they stand still between shifts rather
+  than jittering.
+- **Attacking.** Players look for space on their own: the two nearest team-mates offer angles either side
+  of the carrier, forwards make runs in behind, and a carrier with space in front dribbles into it
+  (shielding and slowing only when an opponent is within 4 m).
+- **Defending is zonal**, with ball-side pressure: the nearest defender presses, the next one covers, and
+  the rest lean toward the attacker in their zone, more tightly near their own box. Tight man-to-man
+  tracking appears only where it would in a match (a run toward goal) or where a scenario needs it.
+- **The ball is simulated**, not attached to players: passes are aimed at where the receiver will be,
+  decelerate, can be cut out by anyone near the line, roll on as a loose ball when nobody gets there, and
+  are taken without the ball snapping to the receiver. The keeper holds saves; a miss means a goal kick and
+  a goal means a kick-off, with the taker walking to the ball first.
+
+Scripted chances override only a handful of players; everyone else keeps behaving normally. The demo
+match uses a broadcast-style feed error (slow AR(1) drift plus 5 cm flicker), and the studio view applies a
+display-only smoothing pass.
 
 Marking in the generator uses a **different mechanism from the detector**, so the evaluation is not
-circular: a defender owns attackers in his *formation anchor's* Voronoi cell, picks them up after a random
-reaction delay, releases them on a role-dependent leash, randomly swaps with neighbours, and chases a
-goal-side point computed from where the attacker was 0.3–0.6 s ago. The detector never sees any of this.
+circular: zone responsibility around each defender's shape anchor, a lean toward the attacker in his zone,
+a random reaction delay of 0.3–0.6 s, and a goal-side point computed from where the attacker *was*. The
+ground-truth label says "marking" only when the lean is strong or the defender is pressing. The detector
+never sees any of this.
 
 Scenario kinds (40 held-out test episodes each, 280 in total):
 
@@ -121,13 +139,13 @@ live use and an HMM with Viterbi decoding for retrospective analysis.
 
 From each shot the system goes back up to 10 s and tests three cause definitions:
 
-- **Decoy run.** A defender was standing within 4 m of the spot where the shooter later received, was
+- **Decoy run.** A defender was standing within 5 m of the spot where the shooter later received, was
   assigned (by the marking model) to a team-mate of the shooter, followed that team-mate's sprint
   (≥ 5.5 m/s) and ended ≥ 9 m away from the spot. Counterfactual: put the defender back where he was and
   recompute the space.
-- **Lost marker.** The shooter's own marker (assigned to him for most of the previous 5 s, within 4 m)
-  stayed below jogging pace (2.5 m/s) for at least 0.6 s while his man sprinted (> 4.5 m/s), and the gap
-  grew to ≥ 6 m. If instead the marker kept running but covered ≥ 55 % of his man's distance, the system
+- **Lost marker.** The shooter's own marker (assigned to him for most of the previous 5 s, within 2.5 m
+  of him for at least 1 s, so it really was a marking job) stayed below jogging pace (2.5 m/s) for at
+  least 0.9 s while his man sprinted (> 4.5 m/s), and the gap at the reception was ≥ 5 m. If instead the marker kept running but covered ≥ 55 % of his man's distance, the system
   reports *outpaced* — an individual, non-tactical pattern. Counterfactual: the marker keeps his starting gap.
 - **Pressing trap.** The ball was lost within 40 m of the loser's goal line, the nearest presser had
   closed ≥ 4 m to within 4 m of the carrier (or was already that tight for 1 s), at least three opponents
@@ -140,24 +158,24 @@ Space is a time-to-intercept dominant region: each cell belongs to the team that
 The output is an **evidence pack** — the shared state every agent reads:
 
 ```json
-{"moment_id": "shot_B6_83_56", "cause": "decoy_run", "verdict_type": "pulled_by_design",
- "chain": [{"t": "83:51-83:55", "actor": "B10", "action": "decoy run (wide)", "dragged": "A4",
-            "dragged_m": 16.8, "space_m2": [83.0, 128.0]},
-           {"t": "83:54", "actor": "B8", "action": "pass into the vacated space", "receiver": "B6"},
-           {"t": "83:55", "actor": "B6", "action": "received in vacated space", "nearest_defender_m": 5.0},
-           {"t": "83:56", "actor": "B6", "action": "shot", "distance_to_goal_m": 25.8}],
- "counterfactual": {"assumption": "A4 stays where he was before B10's run",
-                    "space_m2_actual": 128.0, "space_m2_counterfactual": 54.0,
-                    "nearest_defender_m_actual": 5.0, "nearest_defender_m_counterfactual": 2.5}}
+{"moment_id": "goal_A10_76_37", "cause": "decoy_run", "verdict_type": "pulled_by_design",
+ "chain": [{"t": "76:32-76:36", "actor": "A9", "action": "decoy run (wide)", "dragged": "B4",
+            "dragged_m": 15.0, "space_m2": [84.0, 127.0]},
+           {"t": "76:35", "actor": "A8", "action": "pass into the vacated space", "receiver": "A10"},
+           {"t": "76:36", "actor": "A10", "action": "received in vacated space", "nearest_defender_m": 5.9},
+           {"t": "76:37", "actor": "A10", "action": "shot", "distance_to_goal_m": 24.8}],
+ "counterfactual": {"assumption": "B4 stays where he was before A9's run",
+                    "space_m2_actual": 127.0, "space_m2_counterfactual": 33.0,
+                    "nearest_defender_m_actual": 5.9, "nearest_defender_m_counterfactual": 1.2}}
 ```
 
 The narration the workflow produced for it (offline template writer; every number checked):
 
-> 83:56 Shot by B6. It was created by B10's decoy run: between 83:51-83:55 he went wide and A4, who was
-> marking him, was dragged 16.8 m away. The space around the spot where the shot was set up grew from
-> 83 m² to 128 m², and B6 received there at 83:55 with the nearest defender 5.0 m away. If A4 had stayed
-> where he was, the model puts that space at 54 m² and the nearest defender 2.5 m away. The tracking model
-> shows A4 following his man rather than losing him: he was pulled out by design.
+> 76:37 Goal by A10. It was created by A9's decoy run: between 76:32-76:36 he went wide and B4, who was
+> marking him, was dragged 15.0 m away. The space around the spot where the shot was set up grew from
+> 84 m² to 127 m², and A10 received there at 76:36 with the nearest defender 5.9 m away. If B4 had stayed
+> where he was, the model puts that space at 33 m² and the nearest defender 1.2 m away. The tracking model
+> shows B4 following his man rather than losing him: he was pulled out by design.
 
 ### 4. Agents (`agents/`, Microsoft Agent Framework)
 
@@ -180,13 +198,21 @@ its first draft, and checks that the verifier rejects it, the feedback reaches t
 corrected draft is accepted. `tests/test_agents.py` covers the fallback after two rejections and after a
 model outage.
 
-### 5. Studio UI and live feed (`server/`, `web/`)
+### 5. Studio UI (`server/`, `web/`)
 
-FastAPI serves a single-page studio view: a 2D pitch with telestrator overlays (who marks whom, passing
-lanes, the vacated space, the counterfactual defender drawn as a dashed ghost), the cause card, the causal
-chain (click a step to jump to its frame) and the verified narration. In **Live** mode a WebSocket streams
-the match; when a shot happens the evidence pack is pushed immediately, the narration follows when the
-workflow finishes, and the replay starts automatically.
+FastAPI serves a single-page studio view with two modes:
+
+- **Full match**: the whole 90 minutes on a scrubbable timeline (drag anywhere, play at 0.25–8×). Chances
+  are marked on the timeline in their cause colour; when playback crosses one, a banner names the cause and
+  opens the explanation. The match is shipped to the browser once as compact binary arrays (about 8 MB
+  before compression), so scrubbing is instant.
+- **Replays**: each chance with telestrator overlays (who marks whom, passing lanes, the vacated space,
+  the counterfactual defender drawn as a dashed ghost), the cause card, the causal chain (click a step to
+  jump to its frame) and the verified narration.
+
+The live path is in place for a real feed: `/ws/live` streams the match frame by frame, runs the per-frame
+stage, and pushes the evidence pack the moment a shot is detected; the studio currently uses the
+scrubbable view.
 
 ## Evaluation protocol
 
@@ -200,10 +226,12 @@ workflow finishes, and the replay starts automatically.
 - A cause counts as correct only for the primary cause; "players correct" requires the runner *and* the
   dragged defender (decoy), the defender *and* the attacker (lost marker), or the ball winner (press).
 
-Generator realism (full 90-minute match) is calibrated against published figures: about 105 km per team
+Generator realism (full 90-minute match) is checked against published figures: about 105 km per team
 per Premier League match and about 30 sprints per player
 ([PlayerData](https://www.playerdata.com/blog/world-cup-spotlight)), and high-intensity running
 (≥ 19.8 km/h) taking about 3 % of match time ([Bradley et al., Sunderland repository](https://sure.sunderland.ac.uk/3476)).
+The generator gives 11.4 km and 28 sprints per outfield player per 90; its speed profile is about 12 %
+standing, 46 % walking, 29 % jogging and 13 % running or faster.
 
 ## Run it
 
@@ -259,8 +287,12 @@ tests/    pipeline and agent-workflow tests
   show the detector recovers causes that are present in data like this; they are not a claim about real
   matches. The analysis code reads only positions and events, so it can be pointed at real tracking data
   unchanged — that is the next test.
-- Decoy-run recall is the weakest number: the detector requires the receiver to arrive within 4 m of the
+- Decoy-run recall is the weakest number: the detector requires the receiver to arrive within 5 m of the
   dragged defender's starting spot and misses wider spaces.
+- Marking-inference frame accuracy (about 79 %) is lower than the cause accuracy: most defending in the
+  generator is zonal, and the line between "leaning toward the attacker in my zone" and "marking him" is
+  soft in the labels as well as in football.
+- The synthetic match has no throw-ins, free kicks or corners; play restarts only after shots.
 - Tracking error is modelled as Gaussian (independent or AR(1)); identity swaps and occlusions are not.
 - One cause per chance plus secondary factors; chances with several equally important causes are not
   labelled as such by the generator.

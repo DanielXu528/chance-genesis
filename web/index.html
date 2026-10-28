@@ -109,7 +109,7 @@ details pre{white-space:pre-wrap;font-size:11.5px;background:#fff;border:1px sol
   <div class="score" id="score" aria-label="Score"></div>
   <div class="right">
     <div class="seg" role="group" aria-label="Mode">
-      <button id="mLive" aria-pressed="false">Live</button>
+      <button id="mMatch" aria-pressed="false">Full match</button>
       <button id="mReplay" aria-pressed="true">Replays</button>
     </div>
     <select class="btn" id="lang" aria-label="Narration language" title="Narration language (needs a model endpoint; the offline writer is English only)">
@@ -132,7 +132,7 @@ details pre{white-space:pre-wrap;font-size:11.5px;background:#fff;border:1px sol
       <button class="btn primary" id="play" aria-label="Play">Play</button>
       <select class="btn" id="speed" aria-label="Playback speed">
         <option value="0.25">0.25x</option><option value="0.5" selected>0.5x</option>
-        <option value="1">1x</option><option value="2">2x</option>
+        <option value="1">1x</option><option value="2">2x</option><option value="4">4x</option><option value="8">8x</option>
       </select>
       <div class="scrub"><input type="range" id="scrub" min="0" max="100" value="0" aria-label="Replay position"><div id="evticks"></div></div>
     </div>
@@ -146,7 +146,7 @@ details pre{white-space:pre-wrap;font-size:11.5px;background:#fff;border:1px sol
     </div>
   </section>
   <aside id="side" aria-live="polite">
-    <div class="empty">Pick a chance on the timeline, or switch to Live to watch the match and get each explanation as it happens.</div>
+    <div class="empty">Pick a chance on the timeline, or switch to Full match and drag through the game; each chance explains itself as you pass it.</div>
   </aside>
 </main>
 <script>
@@ -164,7 +164,7 @@ const VERDICT = {
   unattributed: p => `No decoy run, lost marker or pressing trap found before this shot.`,
 };
 const S = {lang:"en", info:null, mode:"replay", sel:null, ev:null, narr:null, clip:null, idx:0, playing:false, speed:0.5,
-  o:{marking:true,lanes:true,offside:false,space:true,ghost:true,trails:true}, live:null, liveFrame:null, last:0};
+  o:{marking:true,lanes:true,offside:false,space:true,ghost:true,trails:true}, match:null, midx:undefined, last:0};
 const $ = id => document.getElementById(id);
 const cv = $("pitch"), ctx = cv.getContext("2d");
 const M = 2.5, PW = 105, PH = 68;
@@ -194,7 +194,11 @@ function renderHeader(){
     b.title = `${m.type === "goal" ? "Goal" : "Shot"} by ${m.shooter} at ${m.t}: ${CAUSE[m.cause].label}`;
     b.setAttribute("aria-label", b.title);
     b.dataset.id = m.moment_id;
-    b.onclick = () => { setMode("replay"); select(m.moment_id); };
+    b.onclick = (ev) => {
+      ev.stopPropagation();
+      if(S.mode === "match"){ seekMatchTime(m.t_s - 12); S.playing = true; $("play").textContent = "Pause"; return; }
+      select(m.moment_id);
+    };
     tl.appendChild(b);
   });
   $("legend").innerHTML = Object.values(CAUSE).map(c => `<span><i style="background:${c.hex}"></i>${c.label}</span>`).join("") +
@@ -393,9 +397,11 @@ function drawFrame(fr, clip){
       ctx.fillStyle = "#ffd23f"; ctx.fillText(txt, lx + 5, ly + 15);
     });
   }
-  // ball
-  ctx.beginPath(); ctx.arc(X(fr.b[0]), Y(fr.b[1]), 0.5*sc, 0, 7); ctx.fillStyle = "#fff"; ctx.fill();
-  ctx.lineWidth = 1.5; ctx.strokeStyle = "#17222a"; ctx.stroke();
+  // ball (not drawn while it is out of play: tracking feeds drop it between the shot and the restart)
+  if(fr.poss === undefined || fr.poss >= 0){
+    ctx.beginPath(); ctx.arc(X(fr.b[0]), Y(fr.b[1]), 0.5*sc, 0, 7); ctx.fillStyle = "#fff"; ctx.fill();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = "#17222a"; ctx.stroke();
+  }
   $("clock").textContent = fr.clock;
   const head = $("head"); if(head) head.style.left = `${fr.t/60/S.info.minutes*100}%`;
 }
@@ -411,58 +417,101 @@ function tick(ts){
     const fr = S.clip.frames[Math.floor(S.idx)];
     $("scrub").value = Math.floor(S.idx);
     drawFrame(fr, S.clip);
-  } else if(S.mode === "live"){
-    drawFrame(S.liveFrame, null);
+  } else if(S.mode === "match" && S.match){
+    const M = S.match;
+    const prev = Math.floor(S.midx);
+    if(S.playing){
+      S.midx += dt * 25 / M.step * S.speed;
+      if(S.midx >= M.n - 1){ S.midx = M.n - 1; S.playing = false; $("play").textContent = "Play"; }
+    }
+    const k = Math.floor(S.midx);
+    if(S.playing) chanceCrossed(prev * M.step, k * M.step);
+    $("scrub").value = k;
+    drawFrame(matchFrame(k), null);
   }
   requestAnimationFrame(tick);
 }
 
-// ---------------------------------------------------------------- live mode
-function setMode(mode){
+// ---------------------------------------------------------------- full match (scrubbable)
+function clockOf(t){ const m = Math.floor(t/60), s = Math.floor(t%60); return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`; }
+async function loadMatch(){
+  if(S.match) return S.match;
+  banner("Loading the full match…");
+  const meta = await j("/api/match/meta");
+  const [tb, sb] = await Promise.all([fetch("/api/match/track").then(r => r.arrayBuffer()),
+                                      fetch("/api/match/state").then(r => r.arrayBuffer())]);
+  S.match = {n: meta.frames, step: meta.step, track: new Int16Array(tb), state: new Int8Array(sb), dv: new DataView(sb)};
+  $("banner").style.display = "none";
+  return S.match;
+}
+function matchFrame(k){
+  const M = S.match, o = k * 46, so = k * 26, p = [], m = [];
+  for(let i = 0; i < 22; i++){ p.push([M.track[o + 2*i] / 10, M.track[o + 2*i + 1] / 10]); m.push(M.state[so + 2 + i]); }
+  const off = M.dv.getInt16(so + 24, true), f = k * M.step;
+  return {f, t: f / 25, clock: clockOf(f / 25), b: [M.track[o + 44] / 10, M.track[o + 45] / 10], p, m,
+          c: M.state[so], poss: M.state[so + 1], off: off < 0 ? null : off / 10};
+}
+function chanceCrossed(f0, f1){
+  if(f1 <= f0) return;
+  const m = S.info.moments.find(x => x.frame > f0 && x.frame <= f1);
+  if(!m) return;
+  banner(`${m.type === "goal" ? "Goal" : "Shot"} by ${m.shooter} at ${m.t}: <b>${CAUSE[m.cause].label}</b>. <button class="btn" id="explain" style="margin-left:8px;padding:2px 10px">Explain this chance</button>`, 6000);
+  const b = $("explain"); if(b) b.onclick = () => { setMode("replay"); select(m.moment_id, true); };
+}
+function matchTicks(){
+  $("evticks").innerHTML = S.info.moments.map(x => `<i class="ev" title="${x.t} ${CAUSE[x.cause].label}" style="left:${x.frame / (S.match.n * S.match.step) * 100}%;background:${CAUSE[x.cause].hex}"></i>`).join("");
+}
+function seekMatchTime(tSec){ if(!S.match) return; S.midx = Math.max(0, Math.min(S.match.n - 1, tSec * 25 / S.match.step)); }
+
+async function setMode(mode){
   S.mode = mode;
-  $("mLive").setAttribute("aria-pressed", mode === "live");
+  $("mMatch").setAttribute("aria-pressed", mode === "match");
   $("mReplay").setAttribute("aria-pressed", mode === "replay");
-  if(mode !== "live" && S.live){ S.live.close(); S.live = null; }
-  if(mode === "live") startLive();
+  S.playing = false; $("play").textContent = "Play";
+  if(mode === "match"){
+    await loadMatch();
+    $("scrub").max = S.match.n - 1; $("scrub").setAttribute("aria-label", "Match position");
+    matchTicks();
+    if(S.midx === undefined) S.midx = 0;
+    $("speed").value = "4"; S.speed = 4;
+    $("side").innerHTML = `<div class="meta">Full match</div><h2 class="cond" style="margin:2px 0 8px;font-size:30px">Drag through the match</h2>
+      <p>Drag the bar under the pitch, or click a dot on the timeline, to jump anywhere. Coloured ticks on the bar are chances; when playback passes one, its cause appears with a button to open the replay analysis.</p>
+      <p class="meta">This view replays the whole 90 minutes from the tracking feed. Explanations are produced from the same data the moment each shot happens.</p>`;
+  } else {
+    $("scrub").setAttribute("aria-label", "Replay position");
+    $("speed").value = "0.5"; S.speed = 0.5;
+    if(S.clip){
+      $("scrub").max = S.clip.frames.length - 1;
+      $("evticks").innerHTML = S.clip.evidence_frames.map(f => `<i class="ev" style="left:${(f - S.clip.from)/(S.clip.to - S.clip.from)*100}%"></i>`).join("");
+    }
+  }
 }
 function banner(html, ms){
   const b = $("banner"); b.innerHTML = html; b.style.display = "block";
   clearTimeout(b._t); if(ms) b._t = setTimeout(() => b.style.display = "none", ms);
 }
-function startLive(){
-  const first = S.info.moments.length ? Math.max(0, S.info.moments[0].frame - 25*40) : 0;
-  const asked = +(new URLSearchParams(location.search).get("start") || 0);
-  const start = S.liveResume || asked || first;
-  const proto = location.protocol === "https:" ? "wss" : "ws";
-  const ws = new WebSocket(`${proto}://${location.host}/ws/live?speed=6&start=${start}`);
-  S.live = ws; banner("Live at 6x. Each chance is explained the moment the shot is taken.", 4000);
-  ws.onmessage = async (msg) => {
-    const d = JSON.parse(msg.data);
-    if(d.type === "frame"){ S.liveFrame = d.frame; S.liveResume = d.frame.f; }
-    if(d.type === "chance"){
-      const e = d.evidence; S.pending = {id: e.moment_id, at: performance.now(), g: d.genesis_ms};
-      banner(`${e.type === "goal" ? "Goal" : "Shot"} by ${e.shooter} at ${e.t}. Cause traced in ${d.genesis_ms} ms: <b>${e.cause_label}</b>. Writing the explanation…`);
-    }
-    if(d.type === "narration" && S.pending && d.moment_id === S.pending.id){
-      const ms = Math.round(performance.now() - S.pending.at);
-      banner(`Cause traced in ${S.pending.g} ms, verified explanation ready ${ms} ms after the shot. Rolling the replay.`, 4000);
-      S.liveResume = S.liveFrame ? S.liveFrame.f + 50 : S.liveResume;
-      const id = d.moment_id; S.pending = null;
-      ws.close(); S.live = null;
-      S.mode = "replay"; $("mLive").setAttribute("aria-pressed", false); $("mReplay").setAttribute("aria-pressed", true);
-      await select(id, true);
-    }
-  };
-}
 
 // ---------------------------------------------------------------- wiring
 $("play").onclick = () => {
+  if(S.mode === "match"){
+    if(!S.match) return;
+    S.playing = !S.playing; $("play").textContent = S.playing ? "Pause" : "Play";
+    return;
+  }
   if(!S.clip) return;
   if(!S.playing && S.idx >= S.clip.frames.length-1) S.idx = 0;
   S.playing = !S.playing; $("play").textContent = S.playing ? "Pause" : "Play";
 };
 $("speed").onchange = e => S.speed = +e.target.value;
-$("scrub").oninput = e => { S.idx = +e.target.value; S.playing = false; $("play").textContent = "Play"; };
+$("scrub").oninput = e => {
+  if(S.mode === "match"){ S.midx = +e.target.value; return; }
+  S.idx = +e.target.value; S.playing = false; $("play").textContent = "Play";
+};
+$("timeline").addEventListener("click", e => {
+  if(S.mode !== "match" || e.target.classList.contains("mk")) return;
+  const r = $("timeline").getBoundingClientRect();
+  seekMatchTime((e.clientX - r.left) / r.width * S.info.minutes * 60);
+});
 $("lang").onchange = async e => {
   S.lang = e.target.value;
   if(S.sel && S.mode === "replay"){
@@ -473,7 +522,7 @@ $("lang").onchange = async e => {
   }
 };
 $("note").onclick = async () => {
-  const t = S.clip ? S.clip.frames[Math.floor(S.idx)].t : (S.liveFrame ? S.liveFrame.t : 0);
+  const t = S.mode === "match" && S.match ? matchFrame(Math.floor(S.midx)).t : (S.clip ? S.clip.frames[Math.floor(S.idx)].t : 0);
   const half = t < 45*60 ? [0, 45*60, "First half"] : [45*60, 95*60, "Second half"];
   $("side").innerHTML = `<div class="meta">Tactical Analyst</div><h2 class="cond" style="margin:2px 0 8px;font-size:30px">${half[2]}</h2><div class="narr loading">Writing the note from the verified chances…</div>`;
   const r = await j(`/api/summary?start_s=${half[0]}&end_s=${half[1]}&language=${S.lang}`);
@@ -485,7 +534,7 @@ $("note").onclick = async () => {
     <div class="evalbox"><table>${rows}</table></div>
     <details><summary>Evidence the analyst receives</summary><pre>${JSON.stringify(r.evidence, null, 1)}</pre></details>`;
 };
-$("mLive").onclick = () => setMode("live");
+$("mMatch").onclick = () => setMode("match");
 $("mReplay").onclick = () => setMode("replay");
 document.querySelectorAll("#toggles input").forEach(cb => cb.onchange = () => S.o[cb.dataset.o] = cb.checked);
 window.addEventListener("keydown", e => { if(e.code === "Space" && e.target === document.body){ e.preventDefault(); $("play").click(); } });
@@ -497,8 +546,10 @@ window.addEventListener("keydown", e => { if(e.code === "Space" && e.target === 
   requestAnimationFrame(tick);
   const params = new URLSearchParams(location.search);
   const goal = S.info.moments.find(m => m.type === "goal" && m.cause === "decoy_run") || S.info.moments[0];
-  if(params.get("live")) setMode("live");
-  else if(goal) select(params.get("m") || goal.moment_id, false);
+  if(params.get("match") || params.get("live")){
+    await setMode("match");
+    if(params.get("t")) seekMatchTime(+params.get("t"));
+  } else if(goal) select(params.get("m") || goal.moment_id, false);
 })();
 </script>
 </body>
