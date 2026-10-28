@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 from pathlib import Path
 
@@ -17,7 +18,8 @@ from analysis.pipeline import analyze
 from gen.episodes import load_obs, make_match, save_episode
 
 ROOT = Path(__file__).resolve().parents[1]
-DEMO = ROOT / "data" / "demo"
+# CG_DATA_DIR lets a host keep the built demo match on persistent storage (e.g. /home on App Service)
+DEMO = Path(os.environ["CG_DATA_DIR"]) if os.environ.get("CG_DATA_DIR") else ROOT / "data" / "demo"
 NAME = "match"
 DEMO_SEED = 27
 

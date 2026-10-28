@@ -21,7 +21,8 @@ az appservice plan show -n "$PLAN" -g "$RG" -o none 2>/dev/null || \
 az webapp show -n "$WEB" -g "$RG" -o none 2>/dev/null || \
   az webapp create -n "$WEB" -g "$RG" -p "$PLAN" --runtime PYTHON:3.12 -o none
 az webapp config set -n "$WEB" -g "$RG" --startup-file "bash startup.sh" --always-on true -o none
-SETTINGS=(SCM_DO_BUILD_DURING_DEPLOYMENT=true WEBSITES_CONTAINER_START_TIME_LIMIT=900)
+# the demo match is built once on first start and kept on persistent storage (/home)
+SETTINGS=(SCM_DO_BUILD_DURING_DEPLOYMENT=true WEBSITES_CONTAINER_START_TIME_LIMIT=1800 CG_DATA_DIR=/home/site/data/demo)
 [[ -n "${FOUNDRY_PROJECT_ENDPOINT:-}" ]] && SETTINGS+=(FOUNDRY_PROJECT_ENDPOINT="$FOUNDRY_PROJECT_ENDPOINT" FOUNDRY_MODEL="${FOUNDRY_MODEL:-gpt-5-mini}")
 [[ -n "${APPLICATIONINSIGHTS_CONNECTION_STRING:-}" ]] && SETTINGS+=(APPLICATIONINSIGHTS_CONNECTION_STRING="$APPLICATIONINSIGHTS_CONNECTION_STRING")
 az webapp config appsettings set -n "$WEB" -g "$RG" --settings "${SETTINGS[@]}" -o none
@@ -36,4 +37,4 @@ fi
 rm -f /tmp/chance-genesis.zip
 git archive --format=zip -o /tmp/chance-genesis.zip HEAD
 az webapp deploy -n "$WEB" -g "$RG" --src-path /tmp/chance-genesis.zip --type zip -o none
-echo "URL: https://$(az webapp show -n "$WEB" -g "$RG" --query defaultHostName -o tsv)  (first start builds the demo match, about 3 minutes)"
+echo "URL: https://$(az webapp show -n "$WEB" -g "$RG" --query defaultHostName -o tsv)  (first start builds the demo match: about 10 minutes on B1)"

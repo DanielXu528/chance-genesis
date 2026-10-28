@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -26,7 +27,7 @@ async def main() -> int:
     ap.add_argument("--moment", default=None)
     ap.add_argument("--language", default="en")
     args = ap.parse_args()
-    f = ROOT / "data" / "demo" / "moments.json"
+    f = (Path(os.environ["CG_DATA_DIR"]) if os.environ.get("CG_DATA_DIR") else ROOT / "data" / "demo") / "moments.json"
     if not f.exists():
         print("No demo match yet: run  python -m server.prepare  first.")
         return 2

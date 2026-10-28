@@ -33,7 +33,8 @@ from analysis.space import control_grid
 from common.pitch import FPS, ID_TO_IDX, PLAYER_IDS, fmt_clock
 
 ROOT = Path(__file__).resolve().parents[1]
-DEMO = ROOT / "data" / "demo"
+# CG_DATA_DIR lets a host keep the built demo match on persistent storage (e.g. /home on App Service)
+DEMO = Path(os.environ["CG_DATA_DIR"]) if os.environ.get("CG_DATA_DIR") else ROOT / "data" / "demo"
 WEB = ROOT / "web"
 TEAMS = {"A": {"name": "Northbridge Athletic", "short": "NBA", "color": "#e4572e", "formation": "4-3-3"},
          "B": {"name": "Harbour Vale", "short": "HVL", "color": "#2e86de", "formation": "4-4-2"}}
@@ -79,6 +80,23 @@ def _load():
 @app.on_event("startup")
 async def _startup():
     _load()
+    if getattr(STATE["writer"], "source", "") == "llm" and os.getenv("CG_WARMUP", "1") != "0":
+        STATE["warmup"] = asyncio.create_task(_warmup())
+
+
+async def _warmup(concurrency: int = 4):
+    """With a model endpoint, write every chance's narration (English, both views) in the background
+    after start-up, so the studio never waits on the model during a demo. Cached like on-demand ones."""
+    sem = asyncio.Semaphore(concurrency)
+
+    async def one(mid: str, audience: str):
+        async with sem:
+            try:
+                await _narration(mid, "en", audience)
+            except Exception:  # noqa: BLE001 - a failed warm-up just falls back to on-demand
+                pass
+    goals_first = sorted(STATE["moments"], key=lambda m: (m["type"] != "goal", m["cause"] == "none"))
+    await asyncio.gather(*(one(m["moment_id"], a) for m in goals_first for a in ("analyst", "fan")))
 
 
 def _summary(m: dict) -> dict:
