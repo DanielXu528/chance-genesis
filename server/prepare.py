@@ -27,7 +27,11 @@ def main():
     ap.add_argument("--minutes", type=float, default=90.0)
     ap.add_argument("--seed", type=int, default=DEMO_SEED)
     ap.add_argument("--noise", type=float, default=0.15, help="feed error std (m): AR(1) drift + 5 cm flicker")
+    ap.add_argument("--if-missing", action="store_true", help="do nothing when the demo match is already built")
     args = ap.parse_args()
+    if args.if_missing and (DEMO / "analysis.npz").exists() and (DEMO / "moments.json").exists():
+        print("demo match already built")
+        return
     t0 = time.time()
     match = make_match(seed=args.seed, minutes=args.minutes, n_chances=max(4, int(round(24 * args.minutes / 90))))
     print(f"generated {match['meta']['n_frames']} frames, {len(match['truth'])} scripted chances in {time.time() - t0:.1f}s")
