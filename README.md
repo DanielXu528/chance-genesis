@@ -302,8 +302,13 @@ and model call (with token usage) is exported to Application Insights through th
 OpenTelemetry instrumentation. Connect the same Application Insights resource to the Foundry project to
 see the traces under Tracing in the Foundry portal.
 
-**Deploy to Azure Container Apps:** `./deploy/aca.sh` with the same variables (plus `FOUNDRY_PROJECT_ID`
-to grant the app's managed identity the Foundry User role automatically).
+**Deploy.** Two scripts, same variables (plus `FOUNDRY_PROJECT_ID` to grant the app's managed identity the
+Foundry User role automatically):
+
+- `./deploy/appservice.sh` — Azure App Service (Linux, Python). The platform builds the code, so no
+  container registry is needed; this is what the hosted demo uses (Azure for Students subscriptions do not
+  allow container builds). `startup.sh` builds the demo match on first start.
+- `./deploy/aca.sh` — Azure Container Apps from the `Dockerfile`, on subscriptions with ACR Tasks.
 
 ## Microsoft technology used
 
@@ -311,7 +316,7 @@ to grant the app's managed identity the Foundry User role automatically).
 |---|---|
 | Microsoft Agent Framework (`Agent`, structured output, `WorkflowBuilder`, executors) | `agents/narrator.py`, `agents/workflow.py` |
 | Microsoft Foundry / Azure OpenAI (chat models) | Narrator, Fan Commentator and Tactical Analyst agents |
-| Azure Container Apps | `Dockerfile`, `deploy/aca.sh` (managed identity for Foundry) |
+| Azure App Service (hosted demo) and Azure Container Apps | `deploy/appservice.sh`, `startup.sh`; `Dockerfile`, `deploy/aca.sh` (managed identity for Foundry) |
 | Azure Identity (`DefaultAzureCredential`) | keyless auth to Foundry |
 | Azure Monitor / Application Insights (OpenTelemetry) | `agents/telemetry.py`: agent and workflow traces, viewable in the Foundry portal |
 
