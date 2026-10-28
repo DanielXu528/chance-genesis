@@ -14,6 +14,12 @@ def _chain(pack: dict, action_prefix: str):
 def template_sentences(pack: dict) -> list[dict]:
     if pack.get("type") == "period_summary":
         return _summary(pack)
+    if pack.get("audience") == "fan" and pack.get("key_player"):
+        return fan_sentences(pack)
+    return analyst_sentences(pack) + stats_sentences(pack)
+
+
+def analyst_sentences(pack: dict) -> list[dict]:
     cause = pack.get("cause", "none")
     what = "Goal" if pack.get("type") == "goal" else "Shot"
     S = [{"text": f"{pack['t']} {what} by {pack['shooter']}.", "cites": ["t", "shooter"]}]
@@ -82,6 +88,80 @@ def template_sentences(pack: dict) -> list[dict]:
                       "cites": ["cause"]})
         S.append({"text": f"The shot came from {sh['distance_to_goal_m']} m with the nearest defender "
                           f"{sh['nearest_defender_m']} m away.", "cites": [f"chain[{k}]"]})
+    return S
+
+
+def stats_sentences(pack: dict) -> list[dict]:
+    """One extra sentence of measured numbers for the analyst view."""
+    st, k = pack.get("stats"), pack.get("key_player")
+    if not st or not k:
+        return []
+    i = next((n for n, r in enumerate(st["players"]) if r["id"] == k["id"]), None)
+    shot = st["shot"]
+    parts, cites = [], []
+    if i is not None:
+        r = st["players"][i]
+        parts.append(f"{r['id']} reached {r['top_speed_ms']} m/s and covered {r['distance_m']} m in the "
+                     f"{st['window_s']} s before the shot")
+        cites += [f"stats.players[{i}]", "stats.window_s"]
+    if shot.get("speed_ms") is not None:
+        parts.append(f"the shot was struck at {shot['speed_ms']} m/s from {shot['distance_m']} m, with "
+                     f"{shot['angle_deg']} degrees of goal to aim at")
+        cites.append("stats.shot")
+    if not parts:
+        return []
+    text = "By the numbers: " + "; ".join(parts) + "."
+    return [{"text": text, "cites": cites}]
+
+
+# ---------------------------------------------------------------------- fan view
+END = {"goal": " and scored", "saved": ", but the keeper saved it", "off_target": ", but it went wide"}
+
+
+def _team(pack: dict, t: str) -> str:
+    return (pack.get("teams") or {}).get(t, f"Team {t}")
+
+
+def _who(pack: dict, pid: str, team: bool = True) -> str:
+    return f"{_team(pack, pid[0])}'s No. {int(pid[1:])}" if team else f"No. {int(pid[1:])}"
+
+
+def fan_sentences(pack: dict) -> list[dict]:
+    """Plain-language version for a casual viewer: who mattered most, and what he did."""
+    k = pack["key_player"]
+    cause = pack.get("cause", "none")
+    end = END.get(pack.get("outcome"), "")
+    S = [{"text": f"The key player in this chance was {_who(pack, k['id'])}.", "cites": ["key_player"]}]
+    sup = {x["role"]: x for x in k.get("supporting", [])}
+    if cause == "decoy_run":
+        i, run = _chain(pack, "decoy run")
+        direction = run["action"].split("(")[-1].rstrip(")")
+        S.append({"text": f"His decoy run {direction} dragged {_who(pack, k['opponent'])} out of position by "
+                          f"{k['value']} m, opening a gap in front of goal.", "cites": ["key_player", f"chain[{i}]"]})
+        ben = sup.get("received in the space")
+        if ben:
+            S.append({"text": f"{_who(pack, ben['id'], team=False)} ran into that space{end}.",
+                      "cites": ["key_player.supporting", "outcome"]})
+    elif cause == "lost_marker":
+        S.append({"text": f"He lost his marker, {_who(pack, k['opponent'])}, who stopped following him, and no "
+                          f"defender was within {k['value']} m when the ball reached him.", "cites": ["key_player"]})
+        S.append({"text": f"He took the shot{end}.", "cites": ["outcome"]})
+    elif cause == "press_turnover":
+        j, sh = _chain(pack, "shot")
+        S.append({"text": f"{_team(pack, k['team'])}'s press squeezed {_who(pack, k['opponent'])}, and "
+                          f"{_who(pack, k['id'], team=False)} won the ball {k['value']} m from goal.",
+                  "cites": ["key_player"]})
+        shooter = pack["shooter"]
+        who = "He" if shooter == k["id"] else _who(pack, shooter, team=False)
+        S.append({"text": f"{who} shot {sh['seconds_after_turnover']} s later{end}.",
+                  "cites": [f"chain[{j}]", "outcome"]})
+    elif k["role"] == "outran his marker":
+        S.append({"text": f"He simply outran {_who(pack, k['opponent'])}, hitting {k['value']} m/s, then shot{end}.",
+                  "cites": ["key_player", "outcome"]})
+        S.append({"text": "No tactical trick this time: it was pure pace.", "cites": ["cause"]})
+    else:
+        S.append({"text": f"He shot from {k['value']} m{end}.", "cites": ["key_player", "outcome"]})
+        S.append({"text": "There was no tactical trick behind this one: it was an ordinary attack.", "cites": ["cause"]})
     return S
 
 

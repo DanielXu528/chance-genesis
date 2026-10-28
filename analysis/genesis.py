@@ -438,6 +438,8 @@ def build_evidence(tr: Track, c: dict, primary, secondary, outpaced, assign, con
     if cause != "none" and not any(st.get("action") == "shot" for st in chain):
         chain.append({"t": _clock(f_s), "actor": PLAYER_IDS[S], "action": "shot", "distance_to_goal_m": _r(goal_dist)})
     strength = primary["strength"] if primary else 0.0
+    key = _key_player(cause, primary, outpaced, players, chain, kp, S, X, goal_dist)
+    stats = _chance_stats(tr, c, t_start, players, kp)
     ev = {
         "moment_id": f"{'goal' if outcome == 'goal' else 'shot'}_{PLAYER_IDS[S]}_{_clock(f_s).replace(':', '_')}",
         "type": "goal" if outcome == "goal" else "shot",
@@ -460,5 +462,93 @@ def build_evidence(tr: Track, c: dict, primary, secondary, outpaced, assign, con
         "evidence_frames": [int(f) for f in frames],
         "clip": {"from_frame": int(max(0, (min(frames) if frames else f_s) - 2 * FPS)), "to_frame": int(min(tr.T - 1, f_s + FPS))},
         "shot_distance_m": _r(goal_dist),
+        "key_player": key,
+        "stats": stats,
     }
     return ev
+
+
+# ---------------------------------------------------------------------- personalisation inputs
+def _num(pid: str) -> int:
+    return int(pid[1:])
+
+
+def _key_player(cause, primary, outpaced, players, chain, kp, S, X, goal_dist) -> dict:
+    """The one player a casual viewer should look at, with what he did (deterministic)."""
+    def card(pid, role, did, opp=None, metric=None, value=None):
+        out = {"id": pid, "number": _num(pid), "team": pid[0], "role": role, "did": did}
+        if opp:
+            out.update({"opponent": opp, "opponent_number": _num(opp)})
+        if metric:
+            out.update({"metric": metric, "value": value})
+        return out
+    sup = []
+    if cause == "decoy_run":
+        run = chain[0]
+        k = card(players["runner"], "decoy runner", f"decoy run ({run['action'].split('(')[-1].rstrip(')')})",
+                 players["dragged"], "dragged_m", run["dragged_m"])
+        sup.append({"id": players["beneficiary"], "number": _num(players["beneficiary"]), "role": "received in the space"})
+    elif cause == "lost_marker":
+        rec = next(st for st in chain if st["action"].startswith("received"))
+        k = card(players["attacker"], "ran off his marker", "kept running when his marker stopped",
+                 players["defender"], "free_m", rec["nearest_defender_m"])
+    elif cause == "press_turnover":
+        won = next(st for st in chain if st["action"].startswith("won the ball"))
+        victim = chain[0]["victim"]
+        k = card(players["ball_winner"], "ball winner", won["action"], victim, "metres_from_goal_line",
+                 won["metres_from_their_goal_line"])
+        shooter = PLAYER_IDS[S]
+        sup += [{"id": p, "number": _num(p), "role": "pressed, then took the shot" if p == shooter else "presser"}
+                for p in players["pressers"] if p != players["ball_winner"]][:2]
+    elif outpaced:
+        st = chain[0]
+        k = card(players["attacker"], "outran his marker", "outran his marker", players["defender"],
+                 "attacker_speed_ms", st["attacker_speed_ms"])
+    else:
+        k = card(PLAYER_IDS[S], "shooter", "shot", None, "distance_to_goal_m", _r(goal_dist))
+    if kp is not None and kp["player"] != k["id"] and all(x["id"] != kp["player"] for x in sup):
+        sup.append({"id": kp["player"], "number": _num(kp["player"]), "role": "made the pass"})
+    shooter = PLAYER_IDS[S]
+    if shooter != k["id"] and all(x["id"] != shooter for x in sup):
+        sup.append({"id": shooter, "number": _num(shooter), "role": "took the shot"})
+    k["supporting"] = sup
+    return k
+
+
+def _chance_stats(tr: Track, c: dict, t_start, players: dict, kp) -> dict:
+    """Numbers for the analyst view, all measured from the tracking data and the event feed."""
+    f_s, f_r, S, X = c["f_s"], c["f_r"], c["S"], c["X"]
+    f0 = max(0, (t_start if t_start is not None else f_r - 4 * FPS) - FPS)
+    ids = []
+    for v in players.values():
+        for pid in (v if isinstance(v, list) else [v]):
+            if pid not in ids:
+                ids.append(pid)
+    if kp is not None and kp["player"] not in ids:
+        ids.append(kp["player"])
+    rows = []
+    for pid in ids:
+        i = ID_TO_IDX[pid]
+        sp = tr.speed[f0:f_s + 1, i]
+        step = np.linalg.norm(np.diff(tr.pos[f0:f_s + 1, i], axis=0), axis=1)
+        rows.append({"id": pid, "top_speed_ms": _r(float(sp.max())), "distance_m": _r(float(step.sum())),
+                     "sprint_m": _r(float(step[sp[1:] > 7.0].sum()))})
+    g = opp_goal(X)
+    p = tr.pos[f_s, S]
+    a1 = np.arctan2(g[1] - 3.66 - p[1], abs(g[0] - p[0]))
+    a2 = np.arctan2(g[1] + 3.66 - p[1], abs(g[0] - p[0]))
+    k = min(4, tr.T - 1 - f_s)
+    shot_speed = float(np.linalg.norm(tr.ball[f_s + k] - tr.ball[f_s]) / max(k, 1) * FPS) if k > 0 else None
+    out = {"window_s": _r((f_s - f0) / FPS),
+           "players": rows,
+           "shot": {"distance_m": _r(float(np.linalg.norm(p - g))), "angle_deg": _r(float(np.degrees(abs(a2 - a1)))),
+                    "speed_ms": None if shot_speed is None else _r(shot_speed)},
+           "move": {"duration_s": _r((f_s - (t_start if t_start is not None else c["f_o"])) / FPS),
+                    "passes": int(sum(1 for ev in tr.events if ev["type"] == "pass" and f0 <= ev["frame"] <= f_s
+                                      and team_of(ID_TO_IDX[ev["player"]]) == X))}}
+    if kp is not None:
+        f_k = int(kp["frame"])
+        d = float(np.linalg.norm(tr.ball[f_r] - tr.ball[f_k]))
+        out["key_pass"] = {"from": kp["player"], "to": PLAYER_IDS[S], "distance_m": _r(d),
+                           "ball_speed_ms": _r(d / max((f_r - f_k) / FPS, 0.04))}
+    return out

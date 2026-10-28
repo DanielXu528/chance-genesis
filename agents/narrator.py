@@ -1,5 +1,7 @@
-"""Narrator and Tactical Analyst agents (Microsoft Agent Framework): two agents with their own
-instructions, sharing one chat client and the same verify / retry / fallback workflow.
+"""Narrator, Fan Commentator and Tactical Analyst agents (Microsoft Agent Framework): three agents
+with their own instructions, sharing one chat client and the same verify / retry / fallback workflow.
+The Narrator writes for analysts, the Fan Commentator for casual viewers (key player, shirt numbers,
+no jargon), the Tactical Analyst writes the half-time studio note.
 
 The LLM only turns an evidence pack into words. It never sees tracking data and never
 decides causes; every sentence must cite the evidence fields it uses, and the Verifier
@@ -39,7 +41,30 @@ Rules
   For verdict_type "pulled_by_design" say the defender followed his assignment; for "switched_off" say the
   model shows him stopping tracking; for "forced_error" credit the press.
 - If cause is "none", say no tactical cause was found and describe the shot.
+- You may add one sentence of measured numbers from `stats` (top speed and distance of the key player,
+  shot speed, distance and angle, pass distance), citing those fields.
 - Write in {language}. Keep player ids and clock times unchanged.
+"""
+
+FAN_INSTRUCTIONS = """You are a friendly match commentator talking to casual fans while the replay of a chance runs.
+Use ONLY the evidence pack you are given; it was produced by deterministic tracking analysis.
+
+Rules
+- 2 to 4 short sentences, at most 70 words, warm and simple. No jargon: no square metres, "counterfactual",
+  "model" or "tracking".
+- Start with the key player (`key_player`): "The key player in this chance was <team name>'s No. <number>."
+  Then say in plain words what he did and how it opened the chance, naming the opponent involved
+  (`key_player.opponent`) the same way, e.g. "Harbour Vale's No. 4". Mention one supporting player at most.
+- Refer to players ONLY by shirt number: "No. 9" (in Chinese "9号"), with the team name from `teams` the
+  first time. Never write ids such as A9 or B4.
+- Besides shirt numbers, use at most two numbers, copied from the pack (you may round to 0 or 1 decimals).
+- Say how it ended from `outcome` (goal, saved, wide).
+- Name the cause in everyday words that include "decoy" or "dragged" (decoy run), "lost his marker" (lost
+  marker) or "press" (pressing trap).
+- For every sentence, list in `cites` the JSON paths of the pack fields it uses (e.g. "key_player",
+  "chain[0]", "outcome").
+- Never blame or judge players.
+- Write in {language}.
 """
 
 ANALYST_INSTRUCTIONS = """You are the tactical analyst preparing a short studio note for the presenters at a break.
@@ -136,14 +161,15 @@ class LLMWriter:
         """Two distinct agents share the client: the replay Narrator and the Tactical Analyst."""
         key = (role, language)
         if key not in self._agents:
-            instructions = ANALYST_INSTRUCTIONS if role == "analyst" else NARRATOR_INSTRUCTIONS
+            instructions = {"analyst": ANALYST_INSTRUCTIONS, "fan": FAN_INSTRUCTIONS}.get(role, NARRATOR_INSTRUCTIONS)
+            name = {"analyst": "TacticalAnalyst", "fan": "FanCommentator"}.get(role, self.name)
             self._agents[key] = self._Agent(
-                self.client, instructions.replace("{language}", LANG_NAMES.get(language, "English")),
-                name="TacticalAnalyst" if role == "analyst" else self.name)
+                self.client, instructions.replace("{language}", LANG_NAMES.get(language, "English")), name=name)
         return self._agents[key]
 
     async def __call__(self, pack: dict, feedback: list[str], language: str = "en") -> list[dict]:
-        role = "analyst" if pack.get("type") == "period_summary" else "narrator"
+        role = "analyst" if pack.get("type") == "period_summary" else (
+            "fan" if pack.get("audience") == "fan" else "narrator")
         prompt = ("Period summary:\n" if role == "analyst" else "Evidence pack:\n") + json.dumps(pack, ensure_ascii=False)
         if feedback:
             prompt += ("\n\nYour previous draft was rejected by the verifier for these reasons. Fix every one:\n- "

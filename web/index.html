@@ -78,14 +78,32 @@ ol.chain li::before{content:counter(s);position:absolute;left:6px;top:8px;width:
 ol.chain .t{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:600;font-size:15px}
 ol.chain .kv{font-size:12.5px;color:var(--muted)}
 .cf{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.cf div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.cf > div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
 .cf .k{font-size:12px;color:var(--muted)}
 .cf .v{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-size:24px;font-weight:700}
-.cf .ghost{border-style:dashed}
+.cf > .ghost{border-style:dashed}
 .audit{margin-top:16px;font-size:13px;border-top:1px dashed var(--line);padding-top:10px;color:var(--muted)}
 .audit b.ok{color:var(--ok)} .audit b.no{color:var(--warn)}
 details{margin-top:12px;font-size:13px}
 details pre{white-space:pre-wrap;font-size:11.5px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px;max-height:280px;overflow:auto}
+.audwrap{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.seg.aud button{padding:6px 12px}
+.keycard{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:12px 0 4px}
+.kit{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:700;flex:none;box-shadow:0 0 0 3px #ffd23f}
+.keycard .k{font-size:12px;color:var(--muted)}
+.keycard .name{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-size:24px;font-weight:700;line-height:1.1}
+.keycard .role{font-size:14px}
+ul.also{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+ul.also li{display:flex;align-items:center;gap:10px;font-size:14px}
+ul.also .kit{box-shadow:none}
+table.nums{border-collapse:collapse;width:100%;font-size:13px;margin-top:4px}
+table.nums th{font-weight:600;color:var(--muted);text-align:right;padding:4px 0;border-bottom:1px solid var(--line)}
+table.nums th:first-child,table.nums td:first-child{text-align:left}
+table.nums td{text-align:right;padding:4px 0;border-bottom:1px solid var(--line)}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.tiles > div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.tiles .k{font-size:11.5px;color:var(--muted)}
+.tiles .v{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-size:20px;font-weight:700}
 .evalbox{font-size:13px}
 .evalbox table{border-collapse:collapse;width:100%;margin-top:6px}
 .evalbox td{padding:3px 0;border-bottom:1px solid var(--line)}
@@ -117,6 +135,12 @@ details pre{white-space:pre-wrap;font-size:11.5px;background:#fff;border:1px sol
     </select>
     <button class="btn" id="note">Studio note</button>
     <span class="pill" id="backend" title="Who writes the narration">…</span>
+    <div class="audwrap"><span id="audlabel">View for</span>
+      <div class="seg aud" role="group" aria-labelledby="audlabel">
+        <button id="aAnalyst" aria-pressed="true" title="Full tactical breakdown with measured numbers">Analyst</button>
+        <button id="aFan" aria-pressed="false" title="The story of the chance and its key player, in plain words">Fan</button>
+      </div>
+    </div>
   </div>
 </header>
 <div class="timeline" id="timeline" aria-label="Chances in the match"></div>
@@ -163,7 +187,7 @@ const VERDICT = {
   outpaced: p => `${p.attacker} outran ${p.defender}, who kept chasing. Individual quality, not a tactical cause.`,
   unattributed: p => `No decoy run, lost marker or pressing trap found before this shot.`,
 };
-const S = {lang:"en", info:null, mode:"replay", sel:null, ev:null, narr:null, clip:null, idx:0, playing:false, speed:0.5,
+const S = {lang:"en", aud:"analyst", info:null, mode:"replay", sel:null, ev:null, narr:null, clip:null, idx:0, playing:false, speed:0.5,
   o:{marking:true,lanes:true,offside:false,space:true,ghost:true,trails:true}, match:null, midx:undefined, last:0};
 const $ = id => document.getElementById(id);
 const cv = $("pitch"), ctx = cv.getContext("2d");
@@ -212,7 +236,7 @@ async function select(id, autoplay=true){
   const m = S.info.moments.find(x => x.moment_id === id);
   renderSide(m, null, null);
   const clipP = j(`/api/clip/${id}?step=1`);
-  const momP = j(`/api/moment/${id}?language=${S.lang}`);
+  const momP = j(`/api/moment/${id}?language=${S.lang}&audience=${S.aud}`);
   S.clip = await clipP; S.ev = S.clip; S.idx = 0;
   $("scrub").max = S.clip.frames.length - 1;
   $("evticks").innerHTML = S.clip.evidence_frames.map(f => `<i class="ev" style="left:${(f - S.clip.from)/(S.clip.to - S.clip.from)*100}%"></i>`).join("");
@@ -232,6 +256,7 @@ function renderSide(m, mo, narr){
       <div class="narr loading">Writing the explanation from the evidence…</div>`;
     return;
   }
+  if(S.aud === "fan") return renderFan(m, mo, narr);
   const e = mo.evidence, p = e.players || {};
   const vfn = VERDICT[e.verdict_type]; const verdict = vfn ? vfn(p) : "";
   const chain = (e.chain||[]).map((st,i) => {
@@ -260,6 +285,7 @@ function renderSide(m, mo, narr){
     <div class="verdict">${verdict}</div>
     <div class="narr">${n ? n.text : "Writing…"}</div>
     <div class="check ${n && n.verified ? "" : "bad"}">${n ? (n.verified ? "✓ Verified: " : "Not verified: ") + checks + ` (${src}${retry})` : ""}</div>
+    ${numbersHtml(e)}
     <h3>How it was built</h3><ol class="chain">${chain}</ol>
     ${cfHtml}
     ${audit}
@@ -268,6 +294,50 @@ function renderSide(m, mo, narr){
     const go = () => { const f = e.evidence_frames[Math.min(+li.dataset.step, e.evidence_frames.length-1)]; seekFrame(f); };
     li.onclick = go; li.onkeydown = ev => { if(ev.key === "Enter") go(); };
   });
+}
+
+// ---------------------------------------------------------------- personalisation
+const FAN_HEAD = {decoy_run:"A decoy run opened the space", lost_marker:"A runner lost his marker",
+  press_turnover:"Won back high up the pitch", none:"A chance from open play"};
+const FAN_ROLE = {"decoy runner":"Made the decoy run", "ran off his marker":"Ran off his marker",
+  "ball winner":"Won the ball back", "outran his marker":"Outran his marker", "shooter":"Took the shot",
+  "received in the space":"Ran into the space", "presser":"Part of the press", "pressed, then took the shot":"Pressed, then took the shot", "made the pass":"Made the pass",
+  "took the shot":"Took the shot"};
+const FAN_OPP = {decoy_run:"Pulled out of position", lost_marker:"Stopped following his runner",
+  press_turnover:"Closed down by the press", none:"Outrun on the chase"};
+const kitColor = id => id[0] === "A" ? "#e0603a" : "#2b7bd6";
+const kit = (id, px) => `<span class="kit" style="background:${kitColor(id)};width:${px}px;height:${px}px;font-size:${Math.round(px*0.48)}px" aria-hidden="true">${+id.slice(1)}</span>`;
+const shirt = (id, withTeam=true) => withTeam ? `${S.info.teams[id[0]].name} No. ${+id.slice(1)}` : `No. ${+id.slice(1)}`;
+
+function renderFan(m, mo, n){
+  const e = mo.evidence, k = e.key_player;
+  const what = e.type === "goal" ? "Goal" : "Chance";
+  const others = (k.supporting || []).map(x => `<li>${kit(x.id, 30)}<span><b>${shirt(x.id)}</b><br>${FAN_ROLE[x.role] || x.role}</span></li>`);
+  if(k.opponent) others.unshift(`<li>${kit(k.opponent, 30)}<span><b>${shirt(k.opponent)}</b><br>${FAN_OPP[e.cause]}</span></li>`);
+  $("side").innerHTML = `
+    <div class="meta">${what} for ${S.info.teams[e.team].name} at ${e.t}</div>
+    <div class="cause"><span class="swatch" style="background:${CAUSE[e.cause].hex}"></span><h2>${FAN_HEAD[e.cause]}</h2></div>
+    <div class="keycard">${kit(k.id, 60)}<div><div class="k">Key player</div><div class="name">${shirt(k.id)}</div><div class="role">${FAN_ROLE[k.role] || k.role}</div></div></div>
+    <div class="narr">${n ? n.text : "Writing…"}</div>
+    <div class="check ${n && n.verified ? "" : "bad"}">${n ? (n.verified ? "✓ Every fact in this story was checked against the match data" : "Not verified") : ""}</div>
+    ${others.length ? `<h3>Also involved</h3><ul class="also">${others.join("")}</ul>` : ""}
+    <p class="meta" style="margin-top:16px">Want the tactics and the numbers? Switch to <button class="btn" id="toAnalyst" style="padding:2px 10px">Analyst</button></p>`;
+  const b = $("toAnalyst"); if(b) b.onclick = () => setAudience("analyst");
+}
+
+function numbersHtml(e){
+  const st = e.stats; if(!st) return "";
+  const keyId = e.key_player ? e.key_player.id : null;
+  const d1 = v => (+v).toFixed(1);
+  const rows = st.players.map(r => `<tr><td>${r.id}${r.id === keyId ? " (key player)" : ""}</td><td>${d1(r.top_speed_ms)} m/s</td><td>${d1(r.distance_m)} m</td><td>${d1(r.sprint_m)} m</td></tr>`).join("");
+  const t = [];
+  if(st.shot.speed_ms !== null) t.push(["Shot speed", `${d1(st.shot.speed_ms)} m/s`]);
+  t.push(["Shot distance", `${d1(st.shot.distance_m)} m`], ["Goal angle", `${d1(st.shot.angle_deg)}°`]);
+  if(st.key_pass) t.push(["Key pass", `${d1(st.key_pass.distance_m)} m`], ["Pass speed", `${d1(st.key_pass.ball_speed_ms)} m/s`]);
+  t.push(["Move", `${d1(st.move.duration_s)} s, ${st.move.passes} pass${st.move.passes === 1 ? "" : "es"}`]);
+  return `<h3>By the numbers</h3>
+    <table class="nums"><thead><tr><th>Player, last ${d1(st.window_s)} s</th><th>Top speed</th><th>Distance</th><th>Sprinting</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="tiles">${t.map(x => `<div><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("")}</div>`;
 }
 
 function seekFrame(f){
@@ -388,7 +458,7 @@ function drawFrame(fr, clip){
     ov.key_players.forEach(k => {
       if(seen.has(k.idx)) return; seen.add(k.idx);
       const p = fr.p[k.idx];
-      const txt = `${k.id} ${k.role.replace("_", " ")}`;
+      const txt = labelFor(k);
       const w = ctx.measureText(txt).width + 10;
       let lx = X(p[0]) + 1.3*sc, ly = Y(p[1]) + 0.6*sc;
       for(let tries=0; tries<6 && placed.some(q => Math.abs(q[0]-lx) < Math.max(q[2], w) && Math.abs(q[1]-ly) < 22); tries++) ly += 22;
@@ -404,6 +474,15 @@ function drawFrame(fr, clip){
   }
   $("clock").textContent = fr.clock;
   const head = $("head"); if(head) head.style.left = `${fr.t/60/S.info.minutes*100}%`;
+}
+
+const FAN_LABEL = {runner:"decoy run", dragged:"pulled away", beneficiary:"into the space", attacker:"ran free",
+  defender:"stopped following", ball_winner:"won it back", presser:"pressing", shooter:"shot"};
+function labelFor(k){
+  if(S.aud !== "fan") return `${k.id} ${k.role.replace("_", " ")}`;
+  const m = S.info.moments.find(x => x.moment_id === S.sel);
+  if(m && m.key_player && m.key_player.id === k.id) return `Key player No. ${+k.id.slice(1)}`;
+  return `No. ${+k.id.slice(1)} ${FAN_LABEL[k.role] || k.role}`;
 }
 
 // ---------------------------------------------------------------- loop
@@ -455,7 +534,10 @@ function chanceCrossed(f0, f1){
   if(f1 <= f0) return;
   const m = S.info.moments.find(x => x.frame > f0 && x.frame <= f1);
   if(!m) return;
-  banner(`${m.type === "goal" ? "Goal" : "Shot"} by ${m.shooter} at ${m.t}: <b>${CAUSE[m.cause].label}</b>. <button class="btn" id="explain" style="margin-left:8px;padding:2px 10px">Explain this chance</button>`, 6000);
+  const head = S.aud === "fan" && m.key_player
+    ? `${m.type === "goal" ? "Goal" : "Chance"} for ${S.info.teams[m.team].name}! Key player: <b>${shirt(m.key_player.id)}</b>.`
+    : `${m.type === "goal" ? "Goal" : "Shot"} by ${m.shooter} at ${m.t}: <b>${CAUSE[m.cause].label}</b>.`;
+  banner(`${head} <button class="btn" id="explain" style="margin-left:8px;padding:2px 10px">Explain this chance</button>`, 6000);
   const b = $("explain"); if(b) b.onclick = () => { setMode("replay"); select(m.moment_id, true); };
 }
 function matchTicks(){
@@ -517,10 +599,23 @@ $("lang").onchange = async e => {
   if(S.sel && S.mode === "replay"){
     const m = S.info.moments.find(x => x.moment_id === S.sel);
     renderSide(m, null, null);
-    const mo = await j(`/api/moment/${S.sel}?language=${S.lang}`);
+    const mo = await j(`/api/moment/${S.sel}?language=${S.lang}&audience=${S.aud}`);
     renderSide(m, mo, mo.narration);
   }
 };
+async function setAudience(a){
+  S.aud = a;
+  $("aAnalyst").setAttribute("aria-pressed", a === "analyst");
+  $("aFan").setAttribute("aria-pressed", a === "fan");
+  if(S.sel && S.mode === "replay"){
+    const id = S.sel, m = S.info.moments.find(x => x.moment_id === id);
+    renderSide(m, null, null);
+    const mo = await j(`/api/moment/${id}?language=${S.lang}&audience=${S.aud}`);
+    if(S.sel === id) renderSide(m, mo, mo.narration);
+  }
+}
+$("aAnalyst").onclick = () => setAudience("analyst");
+$("aFan").onclick = () => setAudience("fan");
 $("note").onclick = async () => {
   const t = S.mode === "match" && S.match ? matchFrame(Math.floor(S.midx)).t : (S.clip ? S.clip.frames[Math.floor(S.idx)].t : 0);
   const half = t < 45*60 ? [0, 45*60, "First half"] : [45*60, 95*60, "Second half"];
@@ -545,6 +640,7 @@ window.addEventListener("keydown", e => { if(e.code === "Space" && e.target === 
   drawPitch();
   requestAnimationFrame(tick);
   const params = new URLSearchParams(location.search);
+  if(params.get("view") === "fan"){ S.aud = "fan"; $("aAnalyst").setAttribute("aria-pressed", false); $("aFan").setAttribute("aria-pressed", true); }
   const goal = S.info.moments.find(m => m.type === "goal" && m.cause === "decoy_run") || S.info.moments[0];
   if(params.get("match") || params.get("live")){
     await setMode("match");

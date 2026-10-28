@@ -23,12 +23,17 @@ held-out scenarios, including four kinds of hard negatives designed to fool it, 
 tracking noise: it names the right cause in 94.3% of chances (cause and key players right in 88.3% of
 real causes) and wrongly assigns a tactical cause to only 1.2% of the hard negatives.
 
+The same verified facts are personalised for two audiences: an **Analyst** view with the full tactical
+breakdown and measured numbers (speeds, distances, shot speed and angle, key pass), and a **Fan** view
+that names the key player in plain words ("The key player in this chance was Northbridge Athletic's No. 9.
+His decoy run wide dragged Harbour Vale's No. 4 out of position…"), in English, Spanish, French or Chinese.
+
 ## How we built it
 - Deterministic analysis in Python/NumPy/SciPy: Hungarian-algorithm marking inference with HMM/Viterbi
   smoothing, interception-time passing-lane model, time-to-intercept space model, rule-based cause tracing
   with counterfactuals. A full 90-minute match is analysed in about 8 s (≈670× real time); the per-frame
   live stage takes 0.2 ms (p99 0.4 ms); tracing a chance after the shot takes about 1.5 ms.
-- **Microsoft Agent Framework** workflow: a Narrator agent (Microsoft Foundry / Azure OpenAI, structured
+- **Microsoft Agent Framework** workflow: a Narrator agent (analyst view) and a Fan Commentator agent (Microsoft Foundry / Azure OpenAI, structured
   output with field citations) → a code Verifier that checks every number, time and player id against the
   evidence pack → retry once with the problems → template fallback. A Tactical Analyst agent writes
   half-time studio notes through the same verified workflow.

@@ -2,7 +2,7 @@
 
   GET  /                      single-page studio UI
   GET  /api/info              match metadata, model backend, list of chances
-  GET  /api/moment/{id}       evidence pack + verified narration (runs the agent workflow once, then cached)
+  GET  /api/moment/{id}?language=&audience=analyst|fan       evidence pack + verified narration (runs the agent workflow once, then cached)
   GET  /api/clip/{id}         frames + overlays for the replay of one chance
   GET  /api/frames            frames for a time range (from, to, step)
   GET  /api/match/meta|track|state   the whole match as compact binary arrays (scrubbable match view)
@@ -83,7 +83,7 @@ async def _startup():
 
 def _summary(m: dict) -> dict:
     return {k: m.get(k) for k in ("moment_id", "type", "t", "t_s", "frame", "team", "shooter", "cause", "cause_label",
-                                  "confidence", "verdict_type", "players")}
+                                  "confidence", "verdict_type", "players", "key_player")}
 
 
 def _audit(m: dict) -> Optional[dict]:
@@ -110,26 +110,37 @@ async def info():
             "disclaimer": "Fully synthetic data. Fictional league, clubs and players."}
 
 
-async def _narration(mid: str, language: str = "en") -> dict:
+AUDIENCES = ("analyst", "fan")
+
+
+def _pack(mid: str, audience: str) -> dict:
+    """The evidence pack plus the viewer's choices (audience, club names). Same facts for everyone."""
+    m = STATE["by_id"][mid]
+    return {**m, "audience": audience, "teams": {k: v["name"] for k, v in TEAMS.items()}}
+
+
+async def _narration(mid: str, language: str = "en", audience: str = "analyst") -> dict:
     s = _load()
-    key = (mid, language)
+    audience = audience if audience in AUDIENCES else "analyst"
+    key = (mid, language, audience)
     if key in s["narr"]:
         return s["narr"][key]
     lock = s["locks"].setdefault(key, asyncio.Lock())
     async with lock:
         if key not in s["narr"]:
-            n = await narrate(s["by_id"][mid], s["writer"], language)
+            n = await narrate(_pack(mid, audience), s["writer"], language)
             s["narr"][key] = n.to_dict()
     return s["narr"][key]
 
 
 @app.get("/api/moment/{mid}")
-async def moment(mid: str, language: str = "en"):
+async def moment(mid: str, language: str = "en", audience: str = "analyst"):
     s = _load()
     if mid not in s["by_id"]:
         raise HTTPException(404, "unknown moment")
     m = s["by_id"][mid]
-    return {"evidence": m, "narration": await _narration(mid, language), "audit": _audit(m), "backend": backend_name()}
+    return {"evidence": m, "narration": await _narration(mid, language, audience), "audit": _audit(m),
+            "backend": backend_name(), "audience": audience}
 
 
 def _frame(f: int, with_lanes: bool = False) -> dict:

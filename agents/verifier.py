@@ -1,7 +1,8 @@
 """Verifier: deterministic checks that a narration says nothing the evidence pack does not.
 
 Checks
-  1. every number, clock time and player id in the text exists in the evidence pack
+  1. every number, clock time and player id (or shirt number, in the fan view) in the text exists in
+     the evidence pack
   2. every number in a sentence is found among the fields that sentence cites
   3. every cited field path exists
   4. no blame language (the system reports what the tracking model shows; it does not judge)
@@ -16,6 +17,8 @@ from typing import Any
 NUM_RE = re.compile(r"(?<![A-Za-z0-9:])(-?\d+(?:\.\d+)?)(?![\d:])")
 CLOCK_RE = re.compile(r"\b(\d{1,3}:\d{2})\b")
 ID_RE = re.compile(r"\b([AB](?:1[01]|[1-9]))\b")
+# shirt-number references used in the fan view: "No. 9", "Nº 9", "#9", "9号"
+SHIRT_RE = re.compile(r"(?:\bNo\.?\s?|\bN[º°]\s?|\bn\.º\s?|#)(1[01]|[1-9])\b|(1[01]|[1-9])\s?号")
 BLAME = ["mistake", "blunder", "fault", "lazy", "careless", "terrible", "awful", "error", "useless", "asleep",
          "失误", "犯错", "懒"]
 CAUSE_WORDS = {  # any one of these must appear (en / es / fr / zh)
@@ -92,6 +95,7 @@ def _pack_index(pack: dict):
 def verify(pack: dict, sentences: list[dict]) -> Report:
     """`sentences`: [{"text": str, "cites": [field paths]}]"""
     flat, nums, ids, clocks = _pack_index(pack)
+    shirts = {int(pid[1:]) for pid in ids}
     problems: list[str] = []
     n_num = n_id = n_clock = 0
     full_text = " ".join(s.get("text", "") for s in sentences)
@@ -108,6 +112,12 @@ def verify(pack: dict, sentences: list[dict]) -> Report:
                     cited_vals.extend(_numbers_in(v))
         clean = CLOCK_RE.sub(" ", text)
         clean = ID_RE.sub(" ", clean)
+        for m in SHIRT_RE.finditer(clean):
+            n_id += 1
+            num = int(m.group(1) or m.group(2))
+            if num not in shirts:
+                problems.append(f"sentence {i + 1}: shirt number {num} is not a player in the evidence")
+        clean = SHIRT_RE.sub(" ", clean)
         for clk in CLOCK_RE.findall(text):
             n_clock += 1
             if clk not in clocks:
@@ -131,7 +141,9 @@ def verify(pack: dict, sentences: list[dict]) -> Report:
     words = CAUSE_WORDS.get(cause, [])
     if words and not any(w in low for w in words):
         problems.append(f"the narration does not name the primary cause ({pack.get('cause_label')})")
+    named_shirts = {int(m.group(1) or m.group(2)) for m in SHIRT_RE.finditer(full_text)}
     for role, pid in (pack.get("players") or {}).items():
-        if isinstance(pid, str) and role in ("runner", "dragged", "defender", "ball_winner") and pid not in full_text:
+        if isinstance(pid, str) and role in ("runner", "dragged", "defender", "ball_winner") \
+                and pid not in full_text and int(pid[1:]) not in named_shirts:
             problems.append(f"key player {pid} ({role}) is not mentioned")
     return Report(ok=not problems, problems=problems, checked={"numbers": n_num, "player_ids": n_id, "clock_times": n_clock})

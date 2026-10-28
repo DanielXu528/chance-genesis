@@ -188,8 +188,9 @@ A `WorkflowBuilder` graph with three executors:
   key players must be named. A rejected draft goes back to the Narrator with the list of problems.
 - **Fallback** — after a second rejection (or a model outage) a template narration that always verifies.
 
-A separate **Tactical Analyst** agent (its own instructions, same client) writes a studio note for each
-half from a period summary, through the same verify / retry / fallback workflow. The UI
+Two more agents share the client and the same verify / retry / fallback workflow: the **Fan
+Commentator** writes the fan view of a chance (see Personalisation below), and the **Tactical Analyst**
+writes a studio note for each half from a period summary. The UI
 shows how many facts were checked and whether a draft was rejected first. Narration can be requested in
 English, Spanish, French or Chinese; the verifier is language-independent (it checks numbers, times and ids).
 
@@ -209,6 +210,26 @@ FastAPI serves a single-page studio view with two modes:
 - **Replays**: each chance with telestrator overlays (who marks whom, passing lanes, the vacated space,
   the counterfactual defender drawn as a dashed ghost), the cause card, the causal chain (click a step to
   jump to its frame) and the verified narration.
+
+### 6. Personalisation: analyst and fan views
+
+The same verified facts reach two audiences, switched with **View for: Analyst | Fan** at the top right:
+
+- **Analyst** — the cause, verdict, causal chain and counterfactual, plus *By the numbers*: top speed,
+  distance and sprinting distance of every player involved in the seconds before the shot, shot speed,
+  distance and goal angle, key-pass distance and ball speed, and the length of the move. All measured
+  from the tracking data and the event feed (`stats` in the evidence pack).
+- **Fan** — who mattered most and what he did, in plain words: *"The key player in this chance was
+  Northbridge Athletic's No. 9. His decoy run wide dragged Harbour Vale's No. 4 out of position by 15.0 m,
+  opening a gap in front of goal. No. 10 ran into that space and scored."* The key player is chosen by code
+  (`key_player`: the decoy runner, the runner who lost his marker, the ball winner of a press, or the
+  shooter), with the opponent he beat and the supporting players. Fans see shirt numbers and club names,
+  not ids; the verifier checks shirt numbers against the evidence the same way it checks ids. On the
+  pitch the key player is labelled as such.
+
+Both views can be requested in English, Spanish, French or Chinese.
+
+![Fan view](docs/screenshot_fan.png)
 
 The live path is in place for a real feed: `/ws/live` streams the match frame by frame, runs the per-frame
 stage, and pushes the evidence pack the moment a shot is detected; the studio currently uses the
@@ -289,7 +310,7 @@ to grant the app's managed identity the Foundry User role automatically).
 | Technology | Where |
 |---|---|
 | Microsoft Agent Framework (`Agent`, structured output, `WorkflowBuilder`, executors) | `agents/narrator.py`, `agents/workflow.py` |
-| Microsoft Foundry / Azure OpenAI (chat models) | Narrator and Tactical Analyst agents |
+| Microsoft Foundry / Azure OpenAI (chat models) | Narrator, Fan Commentator and Tactical Analyst agents |
 | Azure Container Apps | `Dockerfile`, `deploy/aca.sh` (managed identity for Foundry) |
 | Azure Identity (`DefaultAzureCredential`) | keyless auth to Foundry |
 | Azure Monitor / Application Insights (OpenTelemetry) | `agents/telemetry.py`: agent and workflow traces, viewable in the Foundry portal |

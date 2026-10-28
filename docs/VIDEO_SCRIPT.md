@@ -23,12 +23,14 @@ card and the "What if" boxes.]
 dashed circle is where the defender would have been if he'd stayed: the space around the receiver would
 have been 33 square metres instead of 127, with a defender a metre away.
 And the verdict: he followed his man. Pulled out by design, not out of position."
+[Click **Fan** at the top right: the key-player card for No. 9 appears.]
+"For viewers at home, the same checked facts become a story about the key player."
 
 **0:55–1:10 — same picture, different story**
 [Open the lost-marker chance at 05:52. Click chain step 2 to jump to the frame where the marker stops.]
-"This one looks the same on the replay, but the tracking says otherwise: the marker stayed below jogging
-pace for two seconds while his man sprinted, and the gap grew from 1.3 to 15 metres. That's a lost
-marker, not a decoy."
+[Switch back to **Analyst**.]
+"This one looks the same on the replay, but the tracking says otherwise: the marker stopped for two
+seconds while his man sprinted, and the gap grew to 15 metres. A lost marker, not a decoy."
 
 **1:10–1:20 — pressing trap**
 [Open the pressing-trap chance at 48:03 with Passing lanes on. Red dashed lanes are blocked.]
