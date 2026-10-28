@@ -244,19 +244,45 @@ python -m eval.run_eval             # full evaluation (4-9 minutes on one core)
 pytest -q
 ```
 
-Narration backend, first one configured wins (otherwise the offline template writer is used):
+### Microsoft Foundry (narration agents)
+
+Without any configuration the app uses the offline template writer. To run the Narrator and Tactical
+Analyst agents on a Foundry model (keyless, Entra ID):
 
 ```bash
-export FOUNDRY_PROJECT_ENDPOINT=https://<project>.services.ai.azure.com/api/projects/<name>
-export FOUNDRY_MODEL=gpt-4.1-mini            # your deployment name; auth via az login / managed identity
-# or
-export AZURE_OPENAI_ENDPOINT=https://<resource>.openai.azure.com
-export AZURE_OPENAI_DEPLOYMENT=gpt-4.1-mini
-export AZURE_OPENAI_API_KEY=<key>
+az login
+RG=rg-chance-genesis; RES=<globally-unique-name>; PROJ=chance-genesis; LOC=eastus
+az group create -n $RG -l $LOC
+az cognitiveservices account create -n $RES -g $RG --kind AIServices --sku S0 -l $LOC \
+  --custom-domain $RES --assign-identity --allow-project-management true
+az cognitiveservices account project create -n $RES -g $RG --project-name $PROJ -l $LOC
+az cognitiveservices account deployment create -n $RES -g $RG --deployment-name gpt-5-mini \
+  --model-name gpt-5-mini --model-version 2025-08-07 --model-format OpenAI \
+  --sku-name GlobalStandard --sku-capacity 10
+# your own account needs the Foundry User role on the project
+PROJECT_ID=$(az cognitiveservices account project show -n $RES -g $RG --project-name $PROJ --query id -o tsv)
+az role assignment create --role 53ca6127-db72-4b80-b1b0-d745d6d5456d \
+  --assignee-object-id "$(az ad signed-in-user show --query id -o tsv)" --assignee-principal-type User \
+  --scope $PROJECT_ID
+
+export FOUNDRY_PROJECT_ENDPOINT=$(az cognitiveservices account project show -n $RES -g $RG \
+  --project-name $PROJ --query 'properties.endpoints."AI Foundry API"' -o tsv)
+export FOUNDRY_MODEL=gpt-5-mini
+python -m scripts.check_azure        # narrates one chance through the agent workflow and reports the backend
 ```
 
-Deploy to Azure Container Apps: `./deploy/aca.sh` (see the script header: Foundry with managed identity,
-or Azure OpenAI with a key or managed identity).
+Reasoning models (gpt-5*, o*) are called without `temperature` and with low reasoning effort
+(`NARRATOR_REASONING_EFFORT`); the narrator also falls back automatically if a deployment rejects a
+parameter. Azure OpenAI works too: set `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_DEPLOYMENT` and, optionally,
+`AZURE_OPENAI_API_KEY`.
+
+**Tracing.** Set `APPLICATIONINSIGHTS_CONNECTION_STRING` and every workflow run, executor, agent call
+and model call (with token usage) is exported to Application Insights through the Agent Framework's
+OpenTelemetry instrumentation. Connect the same Application Insights resource to the Foundry project to
+see the traces under Tracing in the Foundry portal.
+
+**Deploy to Azure Container Apps:** `./deploy/aca.sh` with the same variables (plus `FOUNDRY_PROJECT_ID`
+to grant the app's managed identity the Foundry User role automatically).
 
 ## Microsoft technology used
 
@@ -266,6 +292,7 @@ or Azure OpenAI with a key or managed identity).
 | Microsoft Foundry / Azure OpenAI (chat models) | Narrator and Tactical Analyst agents |
 | Azure Container Apps | `Dockerfile`, `deploy/aca.sh` (managed identity for Foundry) |
 | Azure Identity (`DefaultAzureCredential`) | keyless auth to Foundry |
+| Azure Monitor / Application Insights (OpenTelemetry) | `agents/telemetry.py`: agent and workflow traces, viewable in the Foundry portal |
 
 ## Repository layout
 
@@ -273,9 +300,10 @@ or Azure OpenAI with a key or managed identity).
 common/   pitch geometry and player indexing
 gen/      generator.py (physics, marking, possession), scripts.py (scenarios), episodes.py (episodes, matches, observation layer)
 analysis/ preprocess, phases, marking, offside, lanes, space, genesis, pipeline
-agents/   narrator.py (Agent Framework agents), verifier.py, templates.py, workflow.py
+agents/   narrator.py (Agent Framework agents), verifier.py, templates.py, workflow.py, telemetry.py
 server/   prepare.py (demo match), app.py (FastAPI + WebSocket)
 web/      index.html (studio UI)
+scripts/  check_azure.py (smoke test for the Foundry / Azure OpenAI setup)
 eval/     run_eval.py, results/ (RESULTS.md, results.json, noise_curve.png)
 tests/    pipeline and agent-workflow tests
 ```

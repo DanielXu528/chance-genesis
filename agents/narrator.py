@@ -6,7 +6,7 @@ decides causes; every sentence must cite the evidence fields it uses, and the Ve
 checks every number, time and player id against the pack.
 
 Model endpoint (first one configured wins)
-  FOUNDRY_PROJECT_ENDPOINT + FOUNDRY_MODEL      Microsoft Foundry project (Entra ID auth)
+  FOUNDRY_PROJECT_ENDPOINT + FOUNDRY_MODEL      Microsoft Foundry project (Entra ID auth, Responses API)
   AZURE_OPENAI_ENDPOINT + AZURE_OPENAI_DEPLOYMENT [+ AZURE_OPENAI_API_KEY]   Azure OpenAI
   none of the above                              offline: deterministic template writer
 """
@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -57,6 +58,29 @@ Rules
 """
 
 
+DEFAULT_MODEL = "gpt-5-mini"
+REASONING_MODEL = re.compile(r"^(gpt-5|o\d)", re.I)
+
+
+def model_name() -> str:
+    return os.getenv("FOUNDRY_MODEL") or os.getenv("AZURE_OPENAI_DEPLOYMENT") or DEFAULT_MODEL
+
+
+def option_sets(model: str) -> list[dict]:
+    """Run options to try in order. Reasoning models (gpt-5*, o*) reject `temperature`; a
+    deployment name may not reveal the model, so the last set is the bare minimum."""
+    base = {"response_format": NarrationModel}
+    if REASONING_MODEL.match(model):
+        effort = os.getenv("NARRATOR_REASONING_EFFORT", "low")
+        return [{**base, "reasoning": {"effort": effort}}, base]
+    return [{**base, "temperature": 0.3}, base]
+
+
+def _is_param_error(e: Exception) -> bool:
+    msg = str(e).lower()
+    return any(w in msg for w in ("temperature", "reasoning", "unsupported parameter", "not supported"))
+
+
 class Sentence(BaseModel):
     text: str = Field(description="One sentence of narration.")
     cites: list[str] = Field(description="JSON paths of the evidence-pack fields this sentence uses.")
@@ -72,11 +96,11 @@ def make_chat_client():
         from agent_framework.foundry import FoundryChatClient
         from azure.identity.aio import DefaultAzureCredential
         return FoundryChatClient(project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
-                                 model=os.getenv("FOUNDRY_MODEL", "gpt-4.1-mini"),
+                                 model=os.getenv("FOUNDRY_MODEL", DEFAULT_MODEL),
                                  credential=DefaultAzureCredential())
     if os.getenv("AZURE_OPENAI_ENDPOINT"):
         from agent_framework.openai import OpenAIChatCompletionClient
-        kw = {"model": os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-4.1-mini"),
+        kw = {"model": os.getenv("AZURE_OPENAI_DEPLOYMENT", DEFAULT_MODEL),
               "azure_endpoint": os.environ["AZURE_OPENAI_ENDPOINT"],
               "api_version": os.getenv("AZURE_OPENAI_API_VERSION", "2024-10-21")}
         if os.getenv("AZURE_OPENAI_API_KEY"):
@@ -90,9 +114,9 @@ def make_chat_client():
 
 def backend_name() -> str:
     if os.getenv("FOUNDRY_PROJECT_ENDPOINT"):
-        return f"Microsoft Foundry ({os.getenv('FOUNDRY_MODEL', 'gpt-4.1-mini')})"
+        return f"Microsoft Foundry ({os.getenv('FOUNDRY_MODEL', DEFAULT_MODEL)})"
     if os.getenv("AZURE_OPENAI_ENDPOINT"):
-        return f"Azure OpenAI ({os.getenv('AZURE_OPENAI_DEPLOYMENT', 'gpt-4.1-mini')})"
+        return f"Azure OpenAI ({os.getenv('AZURE_OPENAI_DEPLOYMENT', DEFAULT_MODEL)})"
     return "offline template writer"
 
 
@@ -106,6 +130,7 @@ class LLMWriter:
         self.name = name
         self._agents: dict[str, object] = {}
         self._Agent = Agent
+        self._opts_index: Optional[int] = None
 
     def _agent(self, role: str, language: str):
         """Two distinct agents share the client: the replay Narrator and the Tactical Analyst."""
@@ -123,7 +148,23 @@ class LLMWriter:
         if feedback:
             prompt += ("\n\nYour previous draft was rejected by the verifier for these reasons. Fix every one:\n- "
                        + "\n- ".join(feedback))
-        resp = await self._agent(role, language).run(prompt, options={"response_format": NarrationModel, "temperature": 0.3})
+        agent = self._agent(role, language)
+        sets = option_sets(model_name())
+        if self._opts_index is not None:
+            sets = sets[self._opts_index:]
+        last: Exception | None = None
+        for k, opts in enumerate(sets):
+            try:
+                resp = await agent.run(prompt, options=opts)
+                if self._opts_index is None:
+                    self._opts_index = k        # remember what this deployment accepts
+                break
+            except Exception as e:  # noqa: BLE001 - retried only for parameter errors
+                if not _is_param_error(e):
+                    raise
+                last = e
+        else:
+            raise last  # type: ignore[misc]
         value = resp.value
         if value is None:
             value = NarrationModel.model_validate_json(resp.text)

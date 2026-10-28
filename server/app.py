@@ -26,6 +26,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from agents.narrator import backend_name, default_writer
+from agents.telemetry import setup_tracing
 from agents.workflow import narrate, summary_pack
 from analysis.lanes import lanes_at
 from analysis.space import control_grid
@@ -58,6 +59,7 @@ def _load():
     truth_file = DEMO / "truth" / "match.json"
     # Ground truth is used ONLY for the optional "audit" badge in the UI, never by the analysis.
     STATE["truth"] = json.loads(truth_file.read_text())["truth"] if truth_file.exists() else []
+    STATE["tracing"] = setup_tracing()
     STATE["writer"] = default_writer()
     # live cause tracing: rebuild the analysis state so a shot can be explained the moment it happens
     from analysis.genesis import ChanceAnalyzer
