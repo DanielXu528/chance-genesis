@@ -1,52 +1,80 @@
 1
-00:00:00,000 --> 00:00:08,000
+00:00:00,500 --> 00:00:04,132
 Every goal starts the same studio argument: why was he free?
-The replay shows what happened. It doesn't show why.
 
 2
-00:00:08,000 --> 00:00:20,000
-Chance Genesis watches 25 hertz tracking data. When a shot happens, it traces the previous ten seconds,
-finds the cause, and has a verified explanation ready before the replay starts.
+00:00:04,132 --> 00:00:06,009
+The replay shows what happened.
 
 3
-00:00:20,000 --> 00:00:31,000
-Here, the striker's run drags his marker fifteen metres wide.
-The yellow area is the space that opened.
+00:00:06,009 --> 00:00:07,220
+It doesn't show why.
 
 4
-00:00:31,000 --> 00:00:42,000
-The dashed circle is where the defender would have been: the receiver would have had 33 square metres instead of 127.
-And the verdict: he followed his man. Pulled out by design, not out of position.
+00:00:08,669 --> 00:00:11,812
+Chance Genesis watches 25 hertz tracking data.
 
 5
-00:00:42,000 --> 00:00:50,000
-For fans at home, the same checked facts become a story about the key player.
+00:00:11,812 --> 00:00:21,106
+When a shot happens, it traces the previous ten seconds, finds the cause, and has a verified explanation ready before the replay starts.
 
 6
-00:00:50,000 --> 00:01:02,000
-This chance looks the same on replay, but the tracking disagrees:
-the marker stopped for two seconds while his man sprinted. That's a lost marker, not a decoy.
+00:00:21,556 --> 00:00:25,574
+Here, the striker's run drags his marker fifteen metres wide.
 
 7
-00:01:02,000 --> 00:01:12,000
-Here the press closed the defender down from fifteen metres to two,
-cut his passing lanes, and won the ball 35 metres from goal.
+00:00:25,574 --> 00:00:28,274
+The yellow area is the space that opened.
 
 8
-00:01:12,000 --> 00:01:22,000
-The language model only writes the words. Every number, time and player comes from code,
-and a verifier rejects any draft that adds a fact.
+00:00:28,274 --> 00:00:35,980
+The dashed circle is where the defender would have been: the receiver would have had 33 square metres instead of 127.
 
 9
-00:01:22,000 --> 00:01:32,000
-On 280 held-out test scenarios, including traps built to fool it,
-it names the right cause 94 percent of the time, with one percent false alarms.
+00:00:35,980 --> 00:00:38,417
+And the verdict: he followed his man.
 
 10
-00:01:32,000 --> 00:01:48,000
-It's built with Microsoft Agent Framework: a narrator, a fan commentator and a tactical analyst,
-checked by a verifier with retry and fallback, running on Microsoft Foundry and Azure App Service.
+00:00:38,417 --> 00:00:41,183
+Pulled out by design, not out of position.
 
 11
-00:01:48,000 --> 00:01:55,000
-Chance Genesis. The why, before the replay ends.
+00:00:41,633 --> 00:00:45,964
+For fans at home, the same checked facts become a story about the key player.
+
+12
+00:00:48,568 --> 00:00:55,952
+This chance looks the same on replay, but the tracking disagrees: the marker stopped for two seconds while his man sprinted.
+
+13
+00:00:55,952 --> 00:00:57,976
+That's a lost marker, not a decoy.
+
+14
+00:01:02,226 --> 00:01:09,906
+Here the press closed the defender down from fifteen metres to two, cut his passing lanes, and won the ball 35 metres from goal.
+
+15
+00:01:11,106 --> 00:01:13,882
+The language model only writes the words.
+
+16
+00:01:13,882 --> 00:01:20,448
+Every number, time and player comes from code, and a verifier rejects any draft that adds a fact.
+
+17
+00:01:20,448 --> 00:01:30,264
+On 280 held-out test scenarios, including traps built to fool it, it names the right cause 94 percent of the time, with one percent false alarms.
+
+18
+00:01:30,714 --> 00:01:43,556
+It's built with Microsoft Agent Framework: a narrator, a fan commentator and a tactical analyst, checked by a verifier with retry and fallback, running on Microsoft Foundry and Azure App Service.
+
+19
+00:01:44,006 --> 00:01:44,987
+Chance Genesis.
+
+20
+00:01:44,987 --> 00:01:47,078
+The why, before the replay ends.
+

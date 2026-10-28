@@ -42,7 +42,7 @@ header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16
 .legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
 main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:0;min-height:calc(100vh - 170px)}
 .stage{padding:14px 20px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.pitchwrap{position:relative;background:var(--grass);border-radius:10px;overflow:hidden}
+.pitchwrap{position:relative;background:var(--grass);border-radius:10px;overflow:hidden;width:min(100%, calc((100vh - 300px) * 1.5));min-width:min(100%, 560px);align-self:center}
 canvas{display:block;width:100%;height:auto}
 .banner{position:absolute;left:14px;top:12px;background:rgba(23,34,42,.88);color:#fff;border-radius:8px;padding:8px 12px;font-size:14px;max-width:70%;display:none}
 .banner b{color:var(--tele)}
