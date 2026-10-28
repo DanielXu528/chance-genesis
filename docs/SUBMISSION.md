@@ -54,6 +54,10 @@ Broadcasters and streaming platforms get an explanation of every chance during t
 after the break, with numbers that can be trusted: the language model only writes, code supplies and
 checks every fact, and the detection itself has a published accuracy.
 
+## Links
+- Live demo: https://chance-genesis-live-837.azurewebsites.net (Azure App Service, Microsoft Foundry gpt-5-mini)
+- Code: https://github.com/DanielXu528/chance-genesis
+
 ## Data statement
 All data is synthetic. The league, clubs (Northbridge Athletic, Harbour Vale) and players are fictional.
 No real match data, club names or trademarks are used.

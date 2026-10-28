@@ -12,6 +12,10 @@ explanation to the studio while the replay is still running.
 Built for the Microsoft × Premier League *Inside the Game* hackathon (Synthetic Match Insights Engine for
 Premier League Studio). All data is synthetic; the league, clubs and players are fictional.
 
+**Live demo:** https://chance-genesis-live-837.azurewebsites.net (Azure App Service; narration written by
+gpt-5-mini on Microsoft Foundry and checked by the verifier). Try `?view=fan` for the fan view or
+`?match=1&t=4580` to drag through the match from 76:20.
+
 ![Studio view](docs/screenshot.png)
 
 <!-- RESULTS:START -->
@@ -305,9 +309,10 @@ see the traces under Tracing in the Foundry portal.
 **Deploy.** Two scripts, same variables (plus `FOUNDRY_PROJECT_ID` to grant the app's managed identity the
 Foundry User role automatically):
 
-- `./deploy/appservice.sh` — Azure App Service (Linux, Python). The platform builds the code, so no
-  container registry is needed; this is what the hosted demo uses (Azure for Students subscriptions do not
-  allow container builds). `startup.sh` builds the demo match on first start.
+- `./deploy/appservice.sh` — Azure App Service (Linux, Python); this is what the hosted demo uses (Azure for
+  Students subscriptions do not allow container builds). No platform build: on start the app pulls the
+  code from this repository, installs dependencies once into `/home`, builds the demo match once into
+  persistent storage (`startup.sh`, `CG_DATA_DIR`), and writes every narration in the background.
 - `./deploy/aca.sh` — Azure Container Apps from the `Dockerfile`, on subscriptions with ACR Tasks.
 
 ## Microsoft technology used
