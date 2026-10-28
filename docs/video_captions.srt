@@ -4,49 +4,49 @@ Every goal starts the same studio argument: why was he free?
 The replay shows what happened. It doesn't show why.
 
 2
-00:00:08,000 --> 00:00:22,000
+00:00:08,000 --> 00:00:20,000
 Chance Genesis watches 25 hertz tracking data. When a shot happens, it traces the previous ten seconds,
 finds the cause, and has a verified explanation ready before the replay starts.
 
 3
-00:00:22,000 --> 00:00:33,000
+00:00:20,000 --> 00:00:31,000
 Here, the striker's run drags his marker fifteen metres wide.
 The yellow area is the space that opened.
 
 4
-00:00:33,000 --> 00:00:45,000
+00:00:31,000 --> 00:00:42,000
 The dashed circle is where the defender would have been: the receiver would have had 33 square metres instead of 127.
 And the verdict: he followed his man. Pulled out by design, not out of position.
 
 5
-00:00:45,000 --> 00:00:53,000
+00:00:42,000 --> 00:00:50,000
 For fans at home, the same checked facts become a story about the key player.
 
 6
-00:00:53,000 --> 00:01:06,000
+00:00:50,000 --> 00:01:02,000
 This chance looks the same on replay, but the tracking disagrees:
 the marker stopped for two seconds while his man sprinted. That's a lost marker, not a decoy.
 
 7
-00:01:06,000 --> 00:01:16,000
+00:01:02,000 --> 00:01:12,000
 Here the press closed the defender down from fifteen metres to two,
 cut his passing lanes, and won the ball 35 metres from goal.
 
 8
-00:01:16,000 --> 00:01:26,000
+00:01:12,000 --> 00:01:22,000
 The language model only writes the words. Every number, time and player comes from code,
 and a verifier rejects any draft that adds a fact.
 
 9
-00:01:26,000 --> 00:01:36,000
-On 280 held-out test scenarios, including traps designed to fool it,
+00:01:22,000 --> 00:01:32,000
+On 280 held-out test scenarios, including traps built to fool it,
 it names the right cause 94 percent of the time, with one percent false alarms.
 
 10
-00:01:36,000 --> 00:01:52,000
+00:01:32,000 --> 00:01:48,000
 It's built with Microsoft Agent Framework: a narrator, a fan commentator and a tactical analyst,
 checked by a verifier with retry and fallback, running on Microsoft Foundry and Azure App Service.
 
 11
-00:01:52,000 --> 00:02:00,000
+00:01:48,000 --> 00:01:55,000
 Chance Genesis. The why, before the replay ends.
