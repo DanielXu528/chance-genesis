@@ -1,55 +1,55 @@
-# Demo video script (target 1:50, hard limit 2:00)
+# Demo video script (target 1:55, hard limit 2:00)
 
-Record the browser at 1920×1080 with the app running on Azure App Service (or locally). No music (or a
-royalty-free track at low volume); no third-party logos. Voice-over lines are in quotes; on-screen actions
-in brackets. Times are cumulative. Clock times refer to the default demo match (seed 27).
+Record the browser at 1920×1080 on the live site (https://chance-genesis-live-837.azurewebsites.net), full
+screen, no music, no third-party logos. Voice-over in quotes (about 260 words, speak briskly); on-screen
+actions in brackets. Clock times refer to the demo match (seed 27).
 
-**0:00–0:10 — the question**
-[Full match view, paused at 76:30, the attack building down the right.]
-"Every goal starts the same argument in the studio: why was he free? The replay shows what happened. It
-doesn't show why."
+Before recording: open the site 3 minutes early so every narration is pre-written, and check that the
+line under the narration says "written by Microsoft Foundry (gpt-5-mini)".
 
-**0:10–0:28 — the match, then the replay**
-[Open `/?match=1&t=4580` (76:20) or drag the bar there. Press Play at 4×. The goal goes in at 76:37: the
-banner names the cause; click "Explain this chance". The replay starts at 0.5×.]
-"Chance Genesis watches 25 Hz tracking data. The moment a shot is taken it goes back ten seconds, finds
-the cause, and has a checked explanation ready in milliseconds, before the replay even starts."
+**0:00–0:08 — the question**
+[`/?match=1&t=4590`: full match view, paused at 76:30.]
+"Every goal starts the same studio argument: why was he free? The replay shows what happened. It doesn't
+show why."
 
-**0:28–0:55 — decoy run**
-[Decoy goal at 76:37. Let the yellow arrows draw A9's wide run and B4 following him. Pause on the
-reception frame: the yellow vacated space and the dashed ghost defender are visible. Point at the cause
-card and the "What if" boxes.]
-"Here the striker's run drags his marker 15 metres wide. The yellow area is the space that opened. The
-dashed circle is where the defender would have been if he'd stayed: the space around the receiver would
-have been 33 square metres instead of 127, with a defender a metre away.
-And the verdict: he followed his man. Pulled out by design, not out of position."
+**0:08–0:22 — the match, then the explanation**
+[Press Play (4×). At 76:37 the banner appears; click "Explain this chance". The replay starts at 0.5×.]
+"Chance Genesis watches 25 hertz tracking data. When a shot happens, it traces the previous ten seconds,
+finds the cause, and has a verified explanation ready before the replay starts."
+
+**0:22–0:45 — decoy run**
+[Let the replay run; drag to the reception frame. Point at the yellow area, the dashed circle and the
+"What if" boxes.]
+"Here, the striker's run drags his marker fifteen metres wide. The yellow area is the space that opened.
+The dashed circle is where the defender would have been: the receiver would have had 33 square metres
+instead of 127. And the verdict: he followed his man. Pulled out by design, not out of position."
+
+**0:45–0:53 — fan view**
 [Click **Fan** at the top right: the key-player card for No. 9 appears.]
-"For viewers at home, the same checked facts become a story about the key player."
+"For fans at home, the same checked facts become a story about the key player."
 
-**0:55–1:10 — same picture, different story**
-[Open the lost-marker chance at 05:52. Click chain step 2 to jump to the frame where the marker stops.]
-[Switch back to **Analyst**.]
-"This one looks the same on the replay, but the tracking says otherwise: the marker stopped for two
-seconds while his man sprinted, and the gap grew to 15 metres. A lost marker, not a decoy."
+**0:53–1:06 — same picture, different story**
+[Click **Analyst**. Click the orange dot at 05:52 on the timeline, then chain step 2.]
+"This chance looks the same on replay, but the tracking disagrees: the marker stopped for two seconds
+while his man sprinted. That's a lost marker, not a decoy."
 
-**1:10–1:20 — pressing trap**
-[Open the pressing-trap chance at 48:03 with Passing lanes on. Red dashed lanes are blocked.]
-"And here the press closed the defender down from 15 metres to 2, cut his passing lanes, and won the ball
-35 metres from his goal. The shot came one second later."
+**1:06–1:16 — pressing trap**
+[Click the purple dot at 48:03 (below the line). Passing lanes are on; red dashed lanes are blocked.]
+"Here the press closed the defender down from fifteen metres to two, cut his passing lanes, and won the
+ball 35 metres from goal."
 
-**1:20–1:40 — why you can trust it**
-[Expand "Evidence pack" briefly; point at "✓ Verified: N numbers, N player ids…". Then show
-eval/results/RESULTS.md or the README results table and the noise curve.]
-"The language model only writes the sentence. Every number, time and player comes from code, and a
-verifier rejects any draft that adds a fact. And we measured it: on 280 held-out scenarios, including
-hard negatives designed to fool it, it names the right cause in 94 percent of chances, with 1 percent
-false alarms."
+**1:16–1:36 — why you can trust it**
+[Scroll the side panel to "✓ Verified … written by Microsoft Foundry (gpt-5-mini)". Then switch to the
+GitHub README results table.]
+"The language model only writes the words. Every number, time and player comes from code, and a verifier
+rejects any draft that adds a fact. On 280 held-out test scenarios, including traps designed to fool it,
+it names the right cause 94 percent of the time, with one percent false alarms."
 
-**1:40–1:55 — how it's built**
-[Show the README architecture diagram.]
-"Microsoft Agent Framework orchestrates the narrator, verifier and fallback on Foundry, the app runs on
-Azure App Service, and a full match is analysed more than 600 times faster than real time."
+**1:36–1:52 — how it's built**
+[README architecture diagram.]
+"It's built with Microsoft Agent Framework: a narrator, a fan commentator and a tactical analyst, checked
+by a verifier with retry and fallback, running on Microsoft Foundry and Azure App Service."
 
-**1:55–2:00 — close**
-[Repo URL on screen.]
+**1:52–2:00 — close**
+[Repo URL on screen: github.com/DanielXu528/chance-genesis]
 "Chance Genesis. The why, before the replay ends."
