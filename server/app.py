@@ -96,7 +96,12 @@ async def _warmup(concurrency: int = 4):
             except Exception:  # noqa: BLE001 - a failed warm-up just falls back to on-demand
                 pass
     goals_first = sorted(STATE["moments"], key=lambda m: (m["type"] != "goal", m["cause"] == "none"))
-    await asyncio.gather(*(one(m["moment_id"], a) for m in goals_first for a in ("analyst", "fan")))
+    for _round in range(3):          # later rounds redo any chance that fell back to the template
+        await asyncio.gather(*(one(m["moment_id"], a) for m in goals_first for a in ("analyst", "fan")))
+        if all(STATE["narr"].get((m["moment_id"], "en", a), {}).get("source") == "llm"
+               for m in goals_first for a in ("analyst", "fan")):
+            break
+        await asyncio.sleep(FALLBACK_RETRY_S + 5)
 
 
 def _summary(m: dict) -> dict:
@@ -137,17 +142,28 @@ def _pack(mid: str, audience: str) -> dict:
     return {**m, "audience": audience, "teams": {k: v["name"] for k, v in TEAMS.items()}}
 
 
+FALLBACK_RETRY_S = 120.0
+
+
+def _fresh(entry: dict) -> bool:
+    """A model-written narration is kept; a template fallback written while a model endpoint is
+    configured (model error, permissions still propagating, two rejected drafts) is retried later."""
+    if entry["source"] != "template" or getattr(STATE["writer"], "source", "") != "llm":
+        return True
+    return time.time() - entry.get("_at", 0) < FALLBACK_RETRY_S
+
+
 async def _narration(mid: str, language: str = "en", audience: str = "analyst") -> dict:
     s = _load()
     audience = audience if audience in AUDIENCES else "analyst"
     key = (mid, language, audience)
-    if key in s["narr"]:
+    if key in s["narr"] and _fresh(s["narr"][key]):
         return s["narr"][key]
     lock = s["locks"].setdefault(key, asyncio.Lock())
     async with lock:
-        if key not in s["narr"]:
+        if key not in s["narr"] or not _fresh(s["narr"][key]):
             n = await narrate(_pack(mid, audience), s["writer"], language)
-            s["narr"][key] = n.to_dict()
+            s["narr"][key] = {**n.to_dict(), "_at": time.time()}
     return s["narr"][key]
 
 
