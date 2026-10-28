@@ -1,6 +1,6 @@
 # Demo video script (target 1:50, hard limit 2:00)
 
-Record the browser at 1920×1080 with the app running locally or on Azure Container Apps. No music (or a
+Record the browser at 1920×1080 with the app running on Azure App Service (or locally). No music (or a
 royalty-free track at low volume); no third-party logos. Voice-over lines are in quotes; on-screen actions
 in brackets. Times are cumulative. Clock times refer to the default demo match (seed 27).
 
@@ -48,7 +48,7 @@ false alarms."
 **1:40–1:55 — how it's built**
 [Show the README architecture diagram.]
 "Microsoft Agent Framework orchestrates the narrator, verifier and fallback on Foundry, the app runs on
-Azure Container Apps, and a full match is analysed more than 600 times faster than real time."
+Azure App Service, and a full match is analysed more than 600 times faster than real time."
 
 **1:55–2:00 — close**
 [Repo URL on screen.]

@@ -78,7 +78,7 @@ flowchart LR
     V -->|rejected, retry once| N
     V -->|rejected twice| F[Template fallback]
   end
-  W --> UI[Studio UI: full-match timeline,<br/>replays, telestrator<br/>Azure Container Apps]
+  W --> UI[Studio UI: full-match timeline,<br/>replays, telestrator<br/>Azure App Service]
   P --> E
 ```
 

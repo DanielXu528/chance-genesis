@@ -41,12 +41,13 @@ His decoy run wide dragged Harbour Vale's No. 4 out of position…"), in English
   players who find space and dribble into it, a simulated ball (passes that can be cut out or run loose),
   goal kicks and kick-offs.
 - FastAPI and a canvas studio UI: the full match on a scrubbable timeline, replays with telestrator
-  overlays, and a WebSocket path for a live feed. Deployed to **Azure Container Apps** with managed
+  overlays, and a WebSocket path for a live feed. Deployed to **Azure App Service** with managed
   identity to Foundry.
 
 ## Microsoft / Azure technologies
 Microsoft Agent Framework (Agent, structured output, WorkflowBuilder/executors), Microsoft Foundry and
-Azure OpenAI, Azure Container Apps, Azure Identity (managed identity).
+Azure OpenAI, Azure App Service (Azure Container Apps script included), Azure Monitor / Application
+Insights (OpenTelemetry tracing), Azure Identity (managed identity).
 
 ## Problem it solves
 Broadcasters and streaming platforms get an explanation of every chance during the replay instead of
